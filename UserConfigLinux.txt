@@ -1,0 +1,47 @@
+
+#Important paths
+set(SAGITTARIUS_BUILD_ROOT ${CMAKE_CURRENT_BINARY_DIR})
+
+#Internal Options
+set(SBNW_CLIENT_BUILD 0)
+# set(SBNW_WIN_COPY_DEPS_TO_INSTALL OFF CACHE BOOL "Should be off for Linux")
+set(SBNW_DEBUG_LEVEL 2 CACHE INTEGER "Verbosity of debug checks")
+set(ENABLE_FULL_RPATH 1 CACHE BOOL "Enable full RPath in generated executable code")
+
+set(SBNW_LINK_TO_STATIC_LIBSBML OFF CACHE BOOL "Link to a static version of libSBML where available")
+
+#libSBML
+set(LINK_WITH_LIBSBML 1 CACHE BOOL "Link with libSBML? (effectively a requirement)")
+if(LINK_WITH_LIBSBML)
+    set(LIBSBML_DIR "/usr/local" CACHE FILEPATH "libSBML root directory (contains lib, include, etc.)")
+    set(LIBSBML_INCLUDE ${LIBSBML_DIR}/include)
+    set(LIBSBML_LIBDIR ${LIBSBML_DIR}/lib)
+    
+    link_directories(${LIBSBML_LIBDIR})
+    
+    set(LIBSBML_LIBS sbml)
+endif()
+
+link_directories(${LIBSBML_LIBDIR})
+
+# Python
+# set(ENABLE_PYTHON3_BINDINGS ON CACHE BOOL "Enable Python 3 bindings")
+# set(ENABLE_PYTHON2_BINDINGS OFF CACHE BOOL "Enable Python 2 bindings")
+
+if(ENABLE_PYTHON3_BINDINGS OR ENABLE_PYTHON2_BINDINGS)
+    set(ENABLE_PYTHON_BINDINGS ON)
+else()
+    set(ENABLE_PYTHON_BINDINGS ON)
+endif()
+
+#MagickWand
+set(LINK_WITH_MAGICK OFF CACHE BOOL "Link with Image Magick?")
+if(LINK_WITH_MAGICK)
+    set(MAGICK_INCLUDE "/usr/include/ImageMagick")
+    set(MAGICK_LIBDIR "/usr/lib")
+    set(MAGICK_LIBS MagickWand)
+endif()
+
+#C/C++ compiler flags
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0 -Wall -Wno-inline") # -pedantic -Wextra
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")

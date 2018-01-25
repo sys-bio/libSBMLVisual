@@ -1,0 +1,17 @@
+Need to install XCB devel before build Qt5:
+sudo yum -y install libxcb-devel xcb-util-cursor-devel xcb-util-devel xcb-util-image-devel xcb-util-keysyms-devel xcb-util-renderutil-devel xcb-util-wm-devel libX11-devel libXrender-devel libicu-devel
+
+# Qt5.3.2 config
+./configure -confirm-license -prefix /home/username/home/etc/install/qt-5.3.2 -opensource -no-icu
+
+# Sip config:
+python3 configure.py -b /home/username/home/etc/install/sip-4.16.4/bin -d /home/username/home/etc/install/sip-4.16.4/site-packages -e /home/username/home/etc/install/sip-4.16.4/include -v /home/username/home/etc/install/sip-4.16.4/sip
+
+# PyQt5.3.2 config:
+python3 configure.py --sip-incdir /home/username/home/etc/install/sip-4.16.4/include --sip /home/username/home/etc/install/sip-4.16.4/bin/sip --confirm-license --destdir /home/username/home/etc/install/pyqt-5.3.2 --qmake /home/username/home/etc/install/qt-5.3.2/bin/qmake -b /home/username/home/etc/install/pyqt-5.3.2/bin -d /home/username/home/etc/install/pyqt-5.3.2/site-packages -v /home/username/home/etc/install/pyqt-5.3.2/sip
+
+# Library paths:
+export LD_LIBRARY_PATH=/home/username/home/devel/install/graphfab-trunk/lib:/home/username/home/devel/install/libsbml-5.11.0/lib:/home/username/home/etc/install/qt-5.4.0/lib:/home/username/home/devel/install/graphfab-trunk/site-packages:$LD_LIBRARY_PATH
+
+# Python paths:
+export PYTHONPATH=/home/username/home/etc/install/pyqt-5.3.2/site-packages:/home/username/home/etc/install/sip-4.16.4/site-packages:/home/username/home/devel/install/graphfab-trunk/site-packages:$PYTHONPATH

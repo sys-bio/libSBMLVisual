@@ -1,0 +1,86 @@
+#!/usr/bin/python
+
+from distutils import sysconfig
+from distutils.core import setup, Extension
+from sys import version_info
+PYTHON_MAJ_VER = version_info.major
+
+def TestCMakeBool(x):
+    return x.lower() == 'on'
+
+libs = []
+libDirs = []
+
+# Account for libSBML
+sbmlLibs = '@LIBSBML_LIBS@'.split(';')
+libs += sbmlLibs
+libDirs.append('@LIBSBML_LIBDIR@')
+
+# Account for libxml2
+if TestCMakeBool('@SBNW_WINDOWS_BUILD@'):
+    libDirs.append('@LIBXML2_LIBDIR@')
+
+if '@LINK_WITH_MAGICK@'.lower() == 'on':
+    magickLibs = '@MAGICK_LIBS@'.split(';')
+    libs += magickLibs
+    libDirs.append('@MAGICK_LIBDIR@')
+
+sources = []
+#sources = [x.strip() for x in '@SBNW_SOURCES@'.split(';') if len(x.strip())]
+    
+print('sources = {}'.format(sources))
+
+defines = [('PYTHON_DIST',),
+                 ('PYTHON_API_VER', str(PYTHON_MAJ_VER)),
+                 ('PYTHON_SCREWED_IT_UP', 1)]
+ 
+if TestCMakeBool('@SBNW_WINDOWS_BUILD@'):
+    if TestCMakeBool('@SBNW_MINGW@'):
+        libprefix = 'lib'
+        defines.append( ('NTDDI_VERSION', '@SBNW_NTDDI_VERSION@') )
+    else:
+        libprefix = ''
+    
+    deps = [x.replace('/', '\\') for x in [r'@CMAKE_INSTALL_PREFIX@/bin/{}sbnw.dll'.format(libprefix), r'@CMAKE_INSTALL_PREFIX@/bin/libsbml.dll']]
+    print('gf dll: ' + deps[0])
+    
+             
+if TestCMakeBool('@ENABLE_PYTHON_BINDINGS@'):
+    module1 = Extension('sbnw',
+                    define_macros = defines,
+                    #include_dirs = ['/usr/local/include'],
+                    include_dirs = ['..'],
+                    libraries = libs + ['sbnw'],
+                    library_dirs = libDirs + [r'@CMAKE_INSTALL_PREFIX@/lib'],
+                    sources = sources + ['python/sbnwmodule.c'])
+print('sysconfig.get_python_lib() = ' + repr(sysconfig.get_python_lib()))
+
+if TestCMakeBool('@SBNW_WINDOWS_BUILD@'):
+    setup (name = 'SBNW',
+           version = '@SBNW_MAJOR_VER@.@SBNW_MINOR_VER@.@SBNW_PATCHLEVEL@',
+           description = 'Graph layout library',
+           author = 'J Medley',
+           author_email = 'medleyj@uw.edu',
+           url = 'http://code.google.com/p/sbnw/',
+           #ext_package = 'sbnw',
+           packages = ['sbnw'],
+           package_dir = {'sbnw': ''},
+           # Does not work:
+           # package_data = {'sbnw': deps},
+           # http://stackoverflow.com/questions/2822424/python-copy-a-dll-to-site-packages-on-windows
+           data_files = [(sysconfig.get_python_lib(), deps)],
+           long_description = '''
+    Graph layout library for SBML.
+    ''',
+           ext_modules = [module1])
+else:
+    setup (name = 'SBNW',
+           version = '@SBNW_MAJOR_VER@.@SBNW_MINOR_VER@.@SBNW_PATCHLEVEL@',
+           description = 'Graph layout library',
+           author = 'J Medley',
+           author_email = 'medleyj@uw.edu',
+           url = 'http://code.google.com/p/sbnw/',
+           long_description = '''
+    Graph layout library for SBML.
+    ''',
+           ext_modules = [module1])

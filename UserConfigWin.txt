@@ -1,0 +1,63 @@
+#Important options & paths
+set(SAGITTARIUS_BUILD_ROOT ${CMAKE_CURRENT_BINARY_DIR})
+
+set(SBNW_WINDOWS_BUILD ON)
+
+if(MINGW)
+    set(SBNW_MINGW ON)
+    set(SBNW_NTDDI_VERSION "NTDDI_WIN7" CACHE STRING "Latest Windows version to include support for")
+    add_definitions( -DNTDDI_VERSION=${SBNW_NTDDI_VERSION} )
+else(MINGW)
+    set(SBNW_MINGW OFF)
+endif(MINGW)
+
+#Internal Options
+set(SBNW_CLIENT_BUILD 0)
+set(SBNW_WIN_COPY_DEPS_TO_INSTALL ON CACHE BOOL "When true, libraries that graphfab depends on (libSBML and its dependencies) will be copied to the graphfab installation directory")
+set(SBNW_DEBUG_LEVEL 2 CACHE INTEGER "Verbosity of debug checks, must be greater than zero")
+
+set(SBNW_LINK_TO_STATIC_LIBSBML ON CACHE BOOL "Link to a static version of libSBML where available")
+
+#libSBML
+set(LINK_WITH_LIBSBML 1 CACHE BOOL "Link with libSBML? (effectively a requirement)")
+if(LINK_WITH_LIBSBML)
+    set(LIBSBML_DIR "C:/Program Files (x86)/libSBML" CACHE FILEPATH "libSBML root directory (contains lib, include, etc.)")
+    set(LIBSBML_INCLUDE ${LIBSBML_DIR}/include)
+    set(LIBSBML_LIBDIR ${LIBSBML_DIR}/lib)
+    set(LIBXML2_DIR "None" CACHE FILEPATH "Root directory of libxml2 deployment")
+    set(LIBXML2_LIBDIR ${LIBXML2_DIR}/lib)
+    message("LIBXML2_LIBDIR = ${LIBXML2_LIBDIR}")
+    
+    link_directories(${LIBSBML_LIBDIR})
+    link_directories(${LIBXML2_LIBDIR})
+
+    set(LIBSBML_LIBS libsbml libxml2)
+endif()
+
+# Static runtime
+foreach(flag
+    CMAKE_C_FLAGS_RELEASE CMAKE_C_FLAGS_RELWITHDEBINFO
+    CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_DEBUG_INIT
+    CMAKE_CXX_FLAGS_RELEASE  CMAKE_CXX_FLAGS_RELWITHDEBINFO
+    CMAKE_CXX_FLAGS_DEBUG  CMAKE_CXX_FLAGS_DEBUG_INIT)
+    string(REPLACE "/MD"  "/MT" "${flag}" "${${flag}}")
+    set("${flag}" "${${flag}} /EHsc")
+endforeach()
+
+# Python
+set(ENABLE_PYTHON3_BINDINGS ON CACHE BOOL "Enable Python 3 bindings")
+set(ENABLE_PYTHON2_BINDINGS OFF CACHE BOOL "Enable Python 2 bindings")
+
+if(ENABLE_PYTHON3_BINDINGS OR ENABLE_PYTHON2_BINDINGS)
+    set(ENABLE_PYTHON_BINDINGS ON)
+else()
+    set(ENABLE_PYTHON_BINDINGS OFF)
+endif()
+
+#MagickWand
+set(LINK_WITH_MAGICK OFF CACHE BOOL "Link with Image Magick?")
+if(LINK_WITH_MAGICK)
+    set(MAGICK_INCLUDE "/usr/include/ImageMagick")
+    set(MAGICK_LIBDIR "/usr/lib")
+    set(MAGICK_LIBS MagickWand)
+endif()

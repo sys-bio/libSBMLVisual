@@ -1,0 +1,9 @@
+Do a make install. Add the graphfab module to your python path:
+
+export PYTHONPATH=~/home/devel/install/sbnw/python2/site-packages:$PYTHONPATH
+
+Then mkdir build/sbnw-sphinx. Run
+
+sphinx-build -b html ../../src/sbnw/graphfab/sphinx/source .
+
+Add a .nojekyll to the root of the repo a la http://daler.github.io/sphinxdoc-test/includeme.html and publish on gh-pages branch.

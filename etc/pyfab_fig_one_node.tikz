@@ -1,0 +1,54 @@
+% This file was created by matplotlib v0.1.0.
+% Copyright (c) 2010--2014, Nico Schlömer <nico.schloemer@gmail.com>
+% All rights reserved.
+% 
+% The lastest updates can be retrieved from
+% 
+% https://github.com/nschloe/matplotlib2tikz
+% 
+% where you can also submit bug reports and leavecomments.
+% 
+\begin{tikzpicture}
+
+\definecolor{color1}{rgb}{1,0.8,1}
+\definecolor{color0}{rgb}{1,0.5,1}
+
+\begin{axis}[
+xmin=0, xmax=600,
+ymin=0, ymax=600,
+axis on top
+]
+\path [draw=color0, fill=color1] (axis cs:45.9,525.9)--(axis cs:79.1,525.9).. controls (axis cs:82.4333333333334,525.9) and (axis cs:84.1,527.566666666667) .. (axis cs:84.1,530.9)--(axis cs:84.1,545.1).. controls (axis cs:84.1,548.433333333333) and (axis cs:82.4333333333334,550.1) .. (axis cs:79.1,550.1)--(axis cs:45.9,550.1).. controls (axis cs:42.5666666666667,550.1) and (axis cs:40.9,548.433333333333) .. (axis cs:40.9,545.1)--(axis cs:40.9,530.9).. controls (axis cs:40.9,527.566666666667) and (axis cs:42.5666666666667,525.9) .. (axis cs:45.9,525.9)--cycle;
+
+\path [draw=color0, fill=color1] (axis cs:183.9,525.9)--(axis cs:229.1,525.9).. controls (axis cs:232.433333333333,525.9) and (axis cs:234.1,527.566666666667) .. (axis cs:234.1,530.9)--(axis cs:234.1,545.1).. controls (axis cs:234.1,548.433333333333) and (axis cs:232.433333333333,550.1) .. (axis cs:229.1,550.1)--(axis cs:183.9,550.1).. controls (axis cs:180.566666666667,550.1) and (axis cs:178.9,548.433333333333) .. (axis cs:178.9,545.1)--(axis cs:178.9,530.9).. controls (axis cs:178.9,527.566666666667) and (axis cs:180.566666666667,525.9) .. (axis cs:183.9,525.9)--cycle;
+
+\path [draw=color0, fill=color1] (axis cs:82.9,402.9)--(axis cs:109.1,402.9).. controls (axis cs:112.433333333333,402.9) and (axis cs:114.1,404.566666666667) .. (axis cs:114.1,407.9)--(axis cs:114.1,422.1).. controls (axis cs:114.1,425.433333333333) and (axis cs:112.433333333333,427.1) .. (axis cs:109.1,427.1)--(axis cs:82.9,427.1).. controls (axis cs:79.5666666666667,427.1) and (axis cs:77.9,425.433333333333) .. (axis cs:77.9,422.1)--(axis cs:77.9,407.9).. controls (axis cs:77.9,404.566666666667) and (axis cs:79.5666666666667,402.9) .. (axis cs:82.9,402.9)--cycle;
+
+\path [draw=color0, fill=color1] (axis cs:199.9,402.9)--(axis cs:238.1,402.9).. controls (axis cs:241.433333333333,402.9) and (axis cs:243.1,404.566666666667) .. (axis cs:243.1,407.9)--(axis cs:243.1,422.1).. controls (axis cs:243.1,425.433333333333) and (axis cs:241.433333333333,427.1) .. (axis cs:238.1,427.1)--(axis cs:199.9,427.1).. controls (axis cs:196.566666666667,427.1) and (axis cs:194.9,425.433333333333) .. (axis cs:194.9,422.1)--(axis cs:194.9,407.9).. controls (axis cs:194.9,404.566666666667) and (axis cs:196.566666666667,402.9) .. (axis cs:199.9,402.9)--cycle;
+
+\path [draw=color0, fill=color1] (axis cs:316.9,402.9)--(axis cs:361.1,402.9).. controls (axis cs:364.433333333333,402.9) and (axis cs:366.1,404.566666666667) .. (axis cs:366.1,407.9)--(axis cs:366.1,422.1).. controls (axis cs:366.1,425.433333333333) and (axis cs:364.433333333333,427.1) .. (axis cs:361.1,427.1)--(axis cs:316.9,427.1).. controls (axis cs:313.566666666667,427.1) and (axis cs:311.9,425.433333333333) .. (axis cs:311.9,422.1)--(axis cs:311.9,407.9).. controls (axis cs:311.9,404.566666666667) and (axis cs:313.566666666667,402.9) .. (axis cs:316.9,402.9)--cycle;
+
+\path [draw=color0, fill=color1] (axis cs:170.9,281.9)--(axis cs:204.1,281.9).. controls (axis cs:207.433333333333,281.9) and (axis cs:209.1,283.566666666667) .. (axis cs:209.1,286.9)--(axis cs:209.1,301.1).. controls (axis cs:209.1,304.433333333333) and (axis cs:207.433333333333,306.1) .. (axis cs:204.1,306.1)--(axis cs:170.9,306.1).. controls (axis cs:167.566666666667,306.1) and (axis cs:165.9,304.433333333333) .. (axis cs:165.9,301.1)--(axis cs:165.9,286.9).. controls (axis cs:165.9,283.566666666667) and (axis cs:167.566666666667,281.9) .. (axis cs:170.9,281.9)--cycle;
+
+\path [draw=color0, fill=color1] (axis cs:330.9,281.9)--(axis cs:376.1,281.9).. controls (axis cs:379.433333333333,281.9) and (axis cs:381.1,283.566666666667) .. (axis cs:381.1,286.9)--(axis cs:381.1,301.1).. controls (axis cs:381.1,304.433333333333) and (axis cs:379.433333333333,306.1) .. (axis cs:376.1,306.1)--(axis cs:330.9,306.1).. controls (axis cs:327.566666666667,306.1) and (axis cs:325.9,304.433333333333) .. (axis cs:325.9,301.1)--(axis cs:325.9,286.9).. controls (axis cs:325.9,283.566666666667) and (axis cs:327.566666666667,281.9) .. (axis cs:330.9,281.9)--cycle;
+
+\path [draw=color0, fill=color1] (axis cs:490.9,287.9)--(axis cs:542.1,287.9).. controls (axis cs:545.433333333333,287.9) and (axis cs:547.1,289.566666666667) .. (axis cs:547.1,292.9)--(axis cs:547.1,307.1).. controls (axis cs:547.1,310.433333333333) and (axis cs:545.433333333333,312.1) .. (axis cs:542.1,312.1)--(axis cs:490.9,312.1).. controls (axis cs:487.566666666667,312.1) and (axis cs:485.9,310.433333333333) .. (axis cs:485.9,307.1)--(axis cs:485.9,292.9).. controls (axis cs:485.9,289.566666666667) and (axis cs:487.566666666667,287.9) .. (axis cs:490.9,287.9)--cycle;
+
+\path [draw=black, fill opacity=0] (axis cs:13,600)--(axis cs:13,600);
+
+\path [draw=black, fill opacity=0] (axis cs:600,13)--(axis cs:600,13);
+
+\path [draw=black, fill opacity=0] (axis cs:13,0)--(axis cs:13,0);
+
+\path [draw=black, fill opacity=0] (axis cs:1.4210854715202e-14,13)--(axis cs:1.4210854715202e-14,13);
+
+
+\node at (axis cs:62.5,536)[
+  scale=0.45,
+  text=black,
+  rotate=0.0
+]{ MKKK};
+
+\end{axis}
+
+\end{tikzpicture}

@@ -1,0 +1,2 @@
+export LD_LIBRARY_PATH=/home/sagrada/myhome/code/sbnw-trunk-install-debug/lib:$LD_LIBRARY_PATH
+export PYTHONPATH=/home/sagrada/Downloads/source/pyqt5/install:/home/sagrada/myhome/code/sbnw-trunk-install-debug/lib/python3.2/site-packages:/home/sagrada/Downloads/source/riverbank-sip/install

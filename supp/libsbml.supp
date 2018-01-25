@@ -1,0 +1,161 @@
+#Taken from Valgrind 3.7.0
+
+{
+   libsbml_problem1
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZNSs4_Rep9_S_createEmmRKSaIcE
+   fun:_ZNSs12_S_constructIPKcEEPcT_S3_RKSaIcESt20forward_iterator_tag
+   fun:_ZNSsC1EPKcRKSaIcE
+   fun:_ZN15LayoutExtension10getXmlnsL2Ev
+   fun:_ZN15LayoutExtension4initEv
+   fun:_ZN21SBMLExtensionRegistry11getInstanceEv
+   fun:_ZN15LayoutExtension4initEv
+   fun:_ZN21SBMLExtensionRegisterI15LayoutExtensionEC1Ev
+   fun:_Z41__static_initialization_and_destruction_0ii
+   fun:_GLOBAL__sub_I_LayoutExtension.cpp
+   fun:call_init.part.0
+}
+
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZNSs4_Rep9_S_createEmmRKSaIcE
+   fun:_ZNSs12_S_constructIPKcEEPcT_S3_RKSaIcESt20forward_iterator_tag
+   fun:_ZNSsC1EPKcRKSaIcE
+   fun:_ZN15LayoutExtension14getXmlnsL3V1V1Ev
+   fun:_ZN15LayoutExtension4initEv
+   fun:_ZN21SBMLExtensionRegistry11getInstanceEv
+   fun:_ZN15LayoutExtension4initEv
+   fun:_ZN21SBMLExtensionRegisterI15LayoutExtensionEC1Ev
+   fun:_Z41__static_initialization_and_destruction_0ii
+   fun:_GLOBAL__sub_I_LayoutExtension.cpp
+   fun:call_init.part.0
+}
+
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZNK18SBasePluginCreatorI17LayoutModelPlugin15LayoutExtensionE12createPluginERKSsS4_PK13XMLNamespaces
+   fun:_ZN5SBase11loadPluginsEP14SBMLNamespaces
+   fun:_ZN5ModelC1EP14SBMLNamespaces
+   fun:_ZN12SBMLDocument12createObjectER14XMLInputStream
+   fun:_ZN5SBase4readER14XMLInputStream
+   fun:_ZN10SBMLReader12readInternalEPKcb
+   fun:_ZN10SBMLReader18readSBMLFromStringERKSs
+   fun:gf_loadSBMLbuf
+   fun:main
+}
+
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZNK18SBasePluginCreatorI29SBMLDocumentPluginNotRequired15LayoutExtensionE12createPluginERKSsS4_PK13XMLNamespaces
+   fun:_ZN5SBase21enablePackageInternalERKSsS1_b
+   fun:_ZN12SBMLDocument21enablePackageInternalERKSsS1_b
+   fun:_ZN5SBase13enablePackageERKSsS1_b
+   fun:_ZNK15LayoutExtension28enableL2NamespaceForDocumentEP12SBMLDocument
+   fun:_ZNK21SBMLExtensionRegistry28enableL2NamespaceForDocumentEP12SBMLDocument
+   fun:_ZN12SBMLDocument14readAttributesERK13XMLAttributesRK18ExpectedAttributes
+   fun:_ZN5SBase4readER14XMLInputStream
+   fun:_ZN10SBMLReader12readInternalEPKcb
+   fun:_ZN10SBMLReader18readSBMLFromStringERKSs
+   fun:gf_loadSBMLbuf
+}
+
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZNK15LayoutExtension5cloneEv
+   fun:_ZN21SBMLExtensionRegistry12addExtensionEPK13SBMLExtension
+   fun:_ZN15LayoutExtension4initEv
+   fun:_ZN21SBMLExtensionRegistry11getInstanceEv
+   fun:_ZN15LayoutExtension4initEv
+   fun:_ZN21SBMLExtensionRegisterI15LayoutExtensionEC1Ev
+   fun:_Z41__static_initialization_and_destruction_0ii
+   fun:_GLOBAL__sub_I_LayoutExtension.cpp
+   fun:call_init.part.0
+   fun:_dl_init
+   obj:/lib/x86_64-linux-gnu/ld-2.15.so
+}
+
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZNK18SBasePluginCreatorI28LayoutSpeciesReferencePlugin15LayoutExtensionE12createPluginERKSsS4_PK13XMLNamespaces
+   fun:_ZN5SBase11loadPluginsEP14SBMLNamespaces
+   fun:_ZN16SpeciesReferenceC1EP14SBMLNamespaces
+   fun:_ZN23ListOfSpeciesReferences12createObjectER14XMLInputStream
+   fun:_ZN5SBase4readER14XMLInputStream
+   fun:_ZN5SBase4readER14XMLInputStream
+   fun:_ZN5SBase4readER14XMLInputStream
+   fun:_ZN5SBase4readER14XMLInputStream
+   fun:_ZN5SBase4readER14XMLInputStream
+   fun:_ZN10SBMLReader12readInternalEPKcb
+   fun:_ZN10SBMLReader18readSBMLFromStringERKSs
+}
+
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZNK7XMLNode5cloneEv
+   fun:_ZN7XMLNode11removeChildEj
+   fun:_Z22deleteLayoutAnnotationP7XMLNode
+   fun:_ZN17LayoutModelPlugin12readOtherXMLEP5SBaseR14XMLInputStream
+   fun:_ZN5SBase12readOtherXMLER14XMLInputStream
+   fun:_ZN5Model12readOtherXMLER14XMLInputStream
+   fun:_ZN5SBase4readER14XMLInputStream
+   fun:_ZN5SBase4readER14XMLInputStream
+   fun:_ZN10SBMLReader12readInternalEPKcb
+   fun:_ZN10SBMLReader18readSBMLFromStringERKSs
+   fun:gf_loadSBMLbuf
+}
+
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZNK7XMLNode5cloneEv
+   fun:_ZN5SBase16appendAnnotationEPK7XMLNode
+   fun:_ZN5Model16appendAnnotationEPK7XMLNode
+   fun:_ZNK17LayoutModelPlugin15writeAttributesER15XMLOutputStream
+   fun:_ZNK5SBase24writeExtensionAttributesER15XMLOutputStream
+   fun:_ZNK5Model15writeAttributesER15XMLOutputStream
+   fun:_ZNK5SBase5writeER15XMLOutputStream
+   fun:_ZNK12SBMLDocument13writeElementsER15XMLOutputStream
+   fun:_ZNK5SBase5writeER15XMLOutputStream
+   fun:_ZN10SBMLWriter9writeSBMLEPK12SBMLDocumentRSo
+   fun:_ZN10SBMLWriter9writeSBMLEPK12SBMLDocumentRKSs
+}
+
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZN17LayoutModelPlugin12createLayoutEv
+   fun:gf_writeSBMLwithLayout
+   fun:main
+}
+
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZNSs4_Rep9_S_createEmmRKSaIcE
+   fun:_ZNSs12_S_constructIPKcEEPcT_S3_RKSaIcESt20forward_iterator_tag
+   fun:_ZNSsC1EPKcRKSaIcE
+   fun:_ZN15LayoutExtension14getPackageNameEv
+   fun:_ZN15LayoutExtension4initEv
+   fun:_ZN21SBMLExtensionRegisterI15LayoutExtensionEC1Ev
+   fun:_Z41__static_initialization_and_destruction_0ii
+   fun:_GLOBAL__sub_I_LayoutExtension.cpp
+   fun:call_init.part.0
+   fun:_dl_init
+   obj:/lib/x86_64-linux-gnu/ld-2.15.so
+}
