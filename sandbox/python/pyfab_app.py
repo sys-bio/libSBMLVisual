@@ -86,7 +86,6 @@ class NodeData:
         self.isBeingDragged = False
         self.customColor = None
         self.customWeight = None
-        self.beacon = False
 
 def QPoint(p):
     return QtCore.QPoint(int(p[0]), int(p[1]))
@@ -403,30 +402,12 @@ class Autolayout(MainWindowBaseClass):
 
         self.toolbar.addWidget(self.sliderwidget)
 
-        self.gravslider = QSlider(QtCore.Qt.Horizontal)
-        self.gravslider.setMaximum(100)
-        self.gravslider.setMinimum(1)
-        self.gravslider.setValue(self.openconfig().state.gravity)
-        self.gravslider.sliderReleased.connect(self.gravity_changed_via_slider)
+        self.model = None
 
-        self.grav_label = QLabel('Gravity:')
-        self.toolbar.addWidget(self.grav_label)
-
-        self.toolbar.addWidget(self.gravslider)
-
-        self.model = sbnw.sbmlmodel(3,1,600,600)
-        self.layout = self.model.layout
-        self.network = self.layout.network
-        self.canvas = self.layout.canvas
-        self.mainframe.network = self.network
 
     def stiffness_changed_via_slider(self):
         with self.openconfig() as config:
             config.state.stiffness = float(self.sliderwidget.value())
-
-    def gravity_changed_via_slider(self):
-        with self.openconfig() as config:
-            config.state.gravity = float(self.gravslider.value())
 
     # marker for Spyder plugin detection
     def pyfabMarker():
@@ -449,10 +430,10 @@ class Autolayout(MainWindowBaseClass):
     def launchOpenDialog(self):
         if is_pyqt5():
           # Qt5
-          return QFileDialog.getOpenFileName(self, filter='SBML files (*.xml *.sbml);;All files (*)')[0]
+          return QFileDialog.getOpenFileName(self)[0]
         else:
           # Qt4
-          return QFileDialog.getOpenFileName(self, filter='SBML files (*.xml *.sbml);;All files (*)')
+          return QFileDialog.getOpenFileName(self)
 
     def open(self, event):
         filename = self.launchOpenDialog()
@@ -516,8 +497,8 @@ class Autolayout(MainWindowBaseClass):
         print('getobj')
 
     def autolayout(self):
-        #self.network.randomize(self.canvas)
-        self.network.autolayout(k=self.sliderwidget.value(), grav=self.gravslider.value())
+        self.network.randomize(self.canvas)
+        self.network.autolayout(k=self.sliderwidget.value())
         self.fitLayoutToWindow()
 
     def copySBMLCb(self, event):
@@ -533,7 +514,6 @@ class Autolayout(MainWindowBaseClass):
         # Fit to frame
         framewidth = self.mainframe.frameRect().width()
         frameheight = self.mainframe.frameRect().height()
-        #self.layout.firstquad(0,0)
         self.mainframe.tf = self.layout.tf_fitwindow(pad,pad,framewidth - pad,frameheight - pad)
         self.mainframe.scale = self.mainframe.tf.scale.x
         self.mainframe.translateBase = QPoint(self.mainframe.tf.disp)
@@ -550,7 +530,6 @@ class Autolayout(MainWindowBaseClass):
 
     def notify_config_changed(self):
         self.sliderwidget.setValue(self.openconfig().state.stiffness)
-        self.gravslider.setValue(self.openconfig().state.gravity)
         self.update()
 
     def opensbml(self, sbml):
@@ -672,13 +651,8 @@ class LayoutFrame(FrameBaseClass):
 
         self.panning = False
         self.dragging = False
-        self.connecting = False
-        self.connecting_src_node = False
 
-        self.connecting_node = None
-        self.connecting_rxn = None
-
-        self.droptarget = None
+        self.recenterrxns = False
 
         self.timer = QtCore.QBasicTimer()
 
@@ -687,10 +661,6 @@ class LayoutFrame(FrameBaseClass):
         self.qtrender = pyfab_qt_render.PyQtRenderer()
         if enable_matplotlib2tikz:
           self.pypltrender = pyfab_matplotlib_render.PyPlotRenderer()
-
-        self.plantNode = False
-        self.plantRxn = False
-        self.plantComp = False
 
     def resetTransform(self):
       self.scale = 1.
@@ -742,10 +712,6 @@ class LayoutFrame(FrameBaseClass):
             self.drawComp(comp, painter, config)
 
         for reaction in self.network.rxns:
-            if hasattr(reaction, 'custom') and reaction.custom.beacon == True:
-                painter.setPen(Qt.NoPen)
-                painter.setBrush(QtGui.QBrush(tuple2QColor((0.35,0.25,0.8,0.5))))
-                painter.drawEllipse(QtCore.QRectF(reaction.centroid.x-20, reaction.centroid.y-20, 40, 40))
             for curve in reaction.curves:
                 self.drawCurve(path, painter, curve, config)
                 if enable_matplotlib2tikz:
@@ -763,11 +729,6 @@ class LayoutFrame(FrameBaseClass):
             y = (y+offset[1])*factor
             hemiwidth = node.width/2
             hemiheight = node.height/2
-            # draw beacon if active
-            if hasattr(node, 'custom') and node.custom.beacon == True:
-                painter.setPen(Qt.NoPen)
-                painter.setBrush(QtGui.QBrush(tuple2QColor((0.25,0.25,0.7,0.5))))
-                painter.drawEllipse(QtCore.QRectF(x-hemiwidth-10, y-hemiwidth-10, node.width+20, node.width+20))
             self.qtrender.drawNode(node, x-hemiwidth, y-hemiheight, x+hemiwidth, y+hemiheight, config, painter, horizonEnabled=horizonEnabled)
             if enable_matplotlib2tikz:
               self.pypltrender.drawNode(node, x-hemiwidth, y-hemiheight, x+hemiwidth, y+hemiheight, screentx)
@@ -883,9 +844,6 @@ class LayoutFrame(FrameBaseClass):
         cornerrad = 10.
 
         compcolor = tuple2QColor(config.state.compartment_color)
-        if self.droptarget is not None and self.droptarget is comp:
-            compcolor = compcolor.darker()
-
         brush = QtGui.QBrush(compcolor)
         painter.setBrush(brush)
 
@@ -911,17 +869,6 @@ class LayoutFrame(FrameBaseClass):
         fixNode(newnode)
         newnode.centroid = x,y
 
-    # x & y are screen space
-    def addComp(self, x1, y1, x2, y2):
-        newcomp = self.network.newcomp('NewComp')
-        newcomp.min = (min(x1,x2),min(y1,y2))
-        newcomp.max = (max(x1,x2),max(y1,y2))
-
-    # x & y are screen space
-    def addReaction(self, x, y):
-        newrxn = self.network.newreaction('NewRxn')
-        newrxn.centroid = x,y
-
     def removeNode(self, node):
         self.network.removenode(node)
 
@@ -937,64 +884,6 @@ class LayoutFrame(FrameBaseClass):
                 return n
         raise RuntimeError('No node with id {}'.format(nodeid))
 
-    def findReactionById(self, rxnid):
-        '''
-        Returns a reaction with the given id, throws RuntimeError if no such reaction exists
-        '''
-        for r in self.network.reactions:
-            if r.id == rxnid:
-                return r
-        raise RuntimeError('No node with id {}'.format(rxnid))
-
-    def pickNode(self, pickx, picky):
-        '''Pick a node on the canvas via e.g. a mouse click.
-
-        Keyword arguments:
-        pickx -- the global x coordinate
-        picky -- the global y coordinate
-        '''
-
-        for node in reversed(self.network.nodes):
-            x, y = self.getNodeScreenSpaceCentroid(node)
-            hemiwidth = node.width/2
-            hemiheight = node.height/2
-
-            if intervalContains(x - hemiwidth, x + hemiwidth, pickx) and intervalContains(y - hemiheight, y + hemiheight, picky):
-                return node
-
-        return None
-
-    def pickComp(self, pickx, picky):
-        '''Pick a node on the canvas via e.g. a mouse click.
-
-        Keyword arguments:
-        pickx -- the global x coordinate
-        picky -- the global y coordinate
-        '''
-
-        for comp in reversed(self.network.compartments):
-            if intervalContains(comp.min.x, comp.max.x, pickx) and intervalContains(comp.min.y, comp.max.y, picky):
-                return comp
-
-        return None
-
-    def pickReaction(self, pickx, picky):
-        '''Pick a reaction on the canvas via e.g. a mouse click.
-
-        Keyword arguments:
-        pickx -- the global x coordinate
-        picky -- the global y coordinate
-        '''
-        for rxn in reversed(self.network.rxns):
-            x, y = rxn.centroid
-            hemiwidth = 10
-            hemiheight = 10
-
-            if intervalContains(x - hemiwidth, x + hemiwidth, pickx) and intervalContains(y - hemiheight, y + hemiheight, picky):
-                return rxn
-
-        return None
-
     # Mouse wheel
     def wheelEvent(self, event):
         if is_pyqt5():
@@ -1007,135 +896,82 @@ class LayoutFrame(FrameBaseClass):
 
     # Mouse press
     def mousePressEvent(self, event):
-        if event.button() == 4:
+        if event.button() == 1:
+            qtfi = self.qtf.inverted()[0]
+            mouse = qtfi.map(QPoint((event.x(), event.y())))
+            dragging_object = False
+
+            if self.parent().createNodeToolAct.isChecked():
+                self.addNode(mouse.x(), mouse.y())
+            else:
+                for node in reversed(self.network.nodes):
+                    x, y = self.getNodeScreenSpaceCentroid(node)
+                    hemiwidth = node.width/2
+                    hemiheight = node.height/2
+
+                    if intervalContains(x - hemiwidth, x + hemiwidth, mouse.x()) and intervalContains(y - hemiheight, y + hemiheight, mouse.y()):
+                        if self.parent().selectToolAct.isChecked():
+                            node.custom.isBeingDragged = True
+                            node.custom.centroidSource = QPoint(self.getNodeScreenSpaceCentroid(node))
+                            self.dragging = True
+                            dragging_object = True
+                            self.dragSource = mouse
+                            break
+                        elif self.parent().lockToolAct.isChecked():
+                            if not node.islocked():
+                                node.lock()
+                            else:
+                                node.unlock()
+                        elif self.parent().eraseToolAct.isChecked():
+                            self.removeNode(node)
+                        elif self.parent().aliasToolAct.isChecked():
+                            self.aliasNode(node)
+
+                if not dragging_object: # don't double-drag
+                  for rxn in reversed(self.network.rxns):
+                      x, y = rxn.centroid
+                      hemiwidth = 10
+                      hemiheight = 10
+
+                      if intervalContains(x - hemiwidth, x + hemiwidth, mouse.x()) and intervalContains(y - hemiheight, y + hemiheight, mouse.y()):
+                          if self.parent().selectToolAct.isChecked():
+                              if not hasattr(rxn, 'custom'):
+                                  rxn.custom = NodeData()
+                              rxn.custom.isBeingDragged = True
+                              rxn.custom.centroidSource = QPoint(self.getNodeScreenSpaceCentroid(rxn))
+                              self.dragging = True
+                              dragging_object = True
+                              self.dragSource = mouse
+                              break
+
+                if not dragging_object:
+                  mouse = QPoint((event.x(), event.y()))
+                  self.panning = True
+                  self.panstart = mouse
+        elif event.button() == 4:
             mouse = QPoint((event.x(), event.y()))
             self.panning = True
             self.panstart = mouse
-        elif event.button() == 1:
-            qtfi = self.qtf.inverted()[0]
-            mouse = qtfi.map(QPoint((event.x(), event.y())))
-            if self.parent().selectToolAct.isChecked():
-                # try to drag a node
-                node = self.pickNode(mouse.x(), mouse.y())
-                if node is not None:
-                    node.custom.isBeingDragged = True
-                    node.custom.centroidSource = QPoint(self.getNodeScreenSpaceCentroid(node))
-                    self.dragging = True
-                    self.dragSource = mouse
-            elif self.parent().lockToolAct.isChecked():
-                node = self.pickNode(mouse.x(), mouse.y())
-                if node is not None:
-                    if not node.islocked():
-                        node.lock()
-                    else:
-                        node.unlock()
-            elif self.parent().eraseToolAct.isChecked():
-                node = self.pickNode(mouse.x(), mouse.y())
-                if node is not None:
-                    self.removeNode(node)
-            elif self.parent().aliasToolAct.isChecked():
-                node = self.pickNode(mouse.x(), mouse.y())
-                if node is not None:
-                    self.aliasNode(node)
-            elif self.parent().createNodeToolAct.isChecked():
-                node = self.pickNode(mouse.x(), mouse.y())
-                if node is not None:
-                    node.custom.beacon = True
-                    self.connecting = True
-                    self.connecting_node = node
-                    self.connecting_src_node = True
-                else:
-                    rxn = self.pickReaction(mouse.x(), mouse.y())
-                    if rxn is not None:
-                        if not hasattr(rxn, 'custom'):
-                            rxn.custom = NodeData()
-                        rxn.custom.beacon = True
-                        self.connecting = True
-                        self.connecting_rxn = rxn
-                        self.connecting_src_node = False
-                    else:
-                        self.plantNode = True
-                        self.dragSource = mouse
-            else:
-                # try to drag a reaction
-                rxn = self.pickReaction(mouse.x(), mouse.y())
-                if rxn is not None:
-                    if self.parent().selectToolAct.isChecked():
-                        if not hasattr(rxn, 'custom'):
-                            rxn.custom = NodeData()
-                        rxn.custom.isBeingDragged = True
-                        rxn.custom.centroidSource = QPoint(self.getNodeScreenSpaceCentroid(rxn))
-                        self.dragging = True
-                        dragging_object = True
-                        self.dragSource = mouse
-                else:
-                    # pan view
-                    mouse = QPoint((event.x(), event.y()))
-                    self.panning = True
-                    self.panstart = mouse
-        elif event.button() == 2:
-            qtfi = self.qtf.inverted()[0]
-            mouse = qtfi.map(QPoint((event.x(), event.y())))
-            self.plantRxn = True
-            self.dragSource = mouse
         self.update()
 
     # Mouse release
     def mouseReleaseEvent(self, event):
         if event.button() == 1:
-            if self.connecting:
-                self.connecting = False
-                for node in self.network.nodes:
-                    node.custom.beacon = False
-                for rxn in self.network.rxns:
-                    if hasattr(rxn, 'custom'):
-                        rxn.custom.beacon = False
-                if self.connecting_node is not None and self.connecting_rxn is not None:
-                    #if not self.network.is_node_connected(self.connecting_node, self.connecting_rxn):
-                        if self.connecting_src_node:
-                            self.network.connectnode(self.connecting_node, self.connecting_rxn, 'SUBSTRATE')
-                        else:
-                            self.network.connectnode(self.connecting_node, self.connecting_rxn, 'PRODUCT')
-                self.update()
-            elif self.plantNode:
-                self.plantNode = False
-                qtfi = self.qtf.inverted()[0]
-                mouse = qtfi.map(QPoint((event.x(), event.y())))
-                self.addNode(mouse.x(), mouse.y())
-                self.update()
-            elif self.plantComp:
-                self.plantComp = False
-                qtfi = self.qtf.inverted()[0]
-                mouse = qtfi.map(QPoint((event.x(), event.y())))
-                self.addComp(self.dragSource.x(), self.dragSource.y(), mouse.x(), mouse.y())
-                self.update()
+            if self.panning:
+              self.panning = False
+              self.applyTranslation()
             else:
-                if self.panning:
-                    self.panning = False
-                    self.applyTranslation()
-                else:
-                    self.dragging = False
-                    for node in self.network.nodes:
-                        # Python: ahead of the curve in uselessness
-                        if node.custom.isBeingDragged and self.droptarget is not None and not self.droptarget.__contains__(node):
-                            self.droptarget.add(node)
-                        node.custom.isBeingDragged = False
-                        node.custom.beacon = False
-                    for rxn in self.network.rxns:
-                        if hasattr(rxn, 'custom') and rxn.custom.isBeingDragged:
-                            rxn.custom.isBeingDragged = False
-                    self.droptarget = None
-                    self.update()
-        elif(event.button() == 4):
+              self.dragging = False
+              for node in self.network.nodes:
+                  if node.custom.isBeingDragged:
+                      node.custom.isBeingDragged = False
+              for rxn in self.network.rxns:
+                  if hasattr(rxn, 'custom') and rxn.custom.isBeingDragged:
+                      rxn.custom.isBeingDragged = False
+              self.update()
+        if(event.button() == 4):
             self.panning = False
             self.applyTranslation()
-        elif(event.button() == 2):
-            if self.plantRxn:
-                self.plantRxn = False
-                qtfi = self.qtf.inverted()[0]
-                mouse = qtfi.map(QPoint((event.x(), event.y())))
-                self.addReaction(mouse.x(), mouse.y())
-                self.update()
 
 
     def applyTranslation(self):
@@ -1143,7 +979,6 @@ class LayoutFrame(FrameBaseClass):
 
     def mouseMoveEvent(self, event):
         if self.dragging:
-            self.droptarget = None
             qtfi = self.qtf.inverted()[0]
             mouse = qtfi.map(QPoint((event.x(), event.y())))
 
@@ -1154,18 +989,15 @@ class LayoutFrame(FrameBaseClass):
                     self.setNodeScreenSpaceCentroid(node, (newcentroid.x(), newcentroid.y()))
                     for reaction in self.network.rxns:
                         if reaction.has(node):
-                            if self.parent().openconfig().state.auto_recenter_junctions:
+                            if self.recenterrxns:
                                 reaction.recenter()
                             else:
                                 reaction.recalccps()
-                    comp = self.pickComp(mouse.x(), mouse.y())
-                    if comp is not None:
-                        self.droptarget = comp
             for rxn in self.network.rxns:
                 if hasattr(rxn, 'custom') and rxn.custom.isBeingDragged:
                     newcentroid = rxn.custom.centroidSource + delta
                     self.setNodeScreenSpaceCentroid(rxn, (newcentroid.x(), newcentroid.y()))
-                    if self.parent().openconfig().state.auto_recenter_junctions:
+                    if self.recenterrxns:
                         rxn.recenter()
                     else:
                         rxn.recalccps()
@@ -1173,33 +1005,6 @@ class LayoutFrame(FrameBaseClass):
         elif self.panning:
             mouse = QPoint((event.x(), event.y()))
             self.changeTranslate(mouse - self.panstart)
-        elif self.connecting:
-            qtfi = self.qtf.inverted()[0]
-            mouse = qtfi.map(QPoint((event.x(), event.y())))
-            if self.connecting_src_node:
-                rxn = self.pickReaction(mouse.x(), mouse.y())
-                if rxn is not None:
-                    if self.connecting_rxn is not None:
-                        self.connecting_rxn.custom.beacon = False
-                    if not hasattr(rxn, 'custom'):
-                        rxn.custom = NodeData()
-                    rxn.custom.beacon = True
-                    self.connecting_rxn = rxn
-            else:
-                node = self.pickNode(mouse.x(), mouse.y())
-                if node is not None:
-                    if self.connecting_node is not None:
-                        self.connecting_node.custom.beacon = False
-                    node.custom.beacon = True
-                    self.connecting_node = node
-            self.update()
-        elif self.plantNode:
-            qtfi = self.qtf.inverted()[0]
-            mouse = qtfi.map(QPoint((event.x(), event.y())))
-            delta = mouse - self.dragSource
-            if delta.x()*delta.x() + delta.y()*delta.y() > 500:
-                self.plantNode = False
-                self.plantComp = True
 
     def setScale(self, s):
         self.update()
@@ -1207,41 +1012,6 @@ class LayoutFrame(FrameBaseClass):
     def changeTranslate(self, delta):
         self.postTranslate = self.postTranslateBase + delta
         self.update()
-
-class OtherOptsCfgPage(QWidget):
-    def __init__(self, parent, config):
-      QWidget.__init__(self, parent)
-
-      self.config = config
-
-      self.mainlayout = QVBoxLayout()
-      self.setLayout(self.mainlayout)
-
-      # sbmlgroup
-      self.sbmlgroup = QFrame(self)
-      self.mainlayout.addWidget(self.sbmlgroup)
-
-      self.other_opts_layout = QVBoxLayout()
-      self.sbmlgroup.setLayout(self.other_opts_layout)
-
-      self.auto_recenter_junctions = QCheckBox('Auto recenter junctions')
-      self.auto_recenter_junctions.stateChanged.connect(self.set_auto_recenter_junctions)
-      self.other_opts_layout.addWidget(self.auto_recenter_junctions)
-
-      self.sync_widgets()
-
-    def sync_widgets(self):
-      if not self.config.state.auto_recenter_junctions:
-        self.auto_recenter_junctions.setCheckState(Qt.Unchecked)
-      else:
-        self.auto_recenter_junctions.setCheckState(Qt.Checked)
-
-    def set_auto_recenter_junctions(self, state):
-      if self.auto_recenter_junctions.checkState() == Qt.Unchecked:
-        self.config.state.auto_recenter_junctions = False
-      else:
-        self.config.state.auto_recenter_junctions = True
-      self.sync_widgets()
 
 class SBMLOptsCfgPage(QWidget):
     def __init__(self, parent, config):
@@ -2187,9 +1957,6 @@ class PrefDialog(QDialog):
       self.sbml_page_item = QListWidgetItem(self.cfgbrowser)
       self.sbml_page_item.setText('SBML')
 
-      self.other_page_item = QListWidgetItem(self.cfgbrowser)
-      self.other_page_item.setText('Other')
-
       self.cfgbrowser.setMaximumWidth(self.cfgbrowser.sizeHintForColumn(0)*2)
 
       self.cfgbrowser.currentItemChanged.connect(self.page_changed)
@@ -2220,11 +1987,6 @@ class PrefDialog(QDialog):
       self.sbml_page = SBMLOptsCfgPage(self, self.config)
       self.pages.addWidget(self.sbml_page)
 
-      # Other options config page
-
-      self.other_page = OtherOptsCfgPage(self, self.config)
-      self.pages.addWidget(self.other_page)
-
       # active page
       if self.config.state.active_config_section == 'render_effect':
         self.cfgbrowser.setCurrentRow(0)
@@ -2235,9 +1997,6 @@ class PrefDialog(QDialog):
       elif self.config.state.active_config_section == 'sbml_options':
         self.cfgbrowser.setCurrentRow(2)
         self.pages.setCurrentIndex(2)
-      elif self.config.state.active_config_section == 'other_options':
-        self.cfgbrowser.setCurrentRow(3)
-        self.pages.setCurrentIndex(3)
 
       # buttons
 
@@ -2272,8 +2031,6 @@ class PrefDialog(QDialog):
         self.config.state.active_config_section = 'draw_style'
       elif current is self.sbml_page_item:
         self.config.state.active_config_section = 'sbml_options'
-      elif current is self.other_page_item:
-        self.config.state.active_config_section = 'other_options'
 
     def reset(self):
       self.config.reset_defaults()

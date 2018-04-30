@@ -25,19 +25,35 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+//== FILEDOC =========================================================================
+
+/** @file sign_mag.h
+ * @brief Sign & magnitude for reals
+  */
+
 //== BEGINNING OF CODE ===============================================================
 
+#ifndef __SBNW_RAND_UNIF_H_
+#define __SBNW_RAND_UNIF_H_
+
+//== INCLUDES ========================================================================
+
 #include "graphfab/core/SagittariusCore.h"
-#include "graphfab/math/gf_cubic.h"
 
-#include <iostream>
+#include <stdlib.h>
 
-using namespace Graphfab;
+//-- C++ code --
+#ifdef __cplusplus
 
-int main(int argc, char* argv[]) {
-    CubicRoots r(-5., 1., 1.);
+namespace Graphfab {
+
+    inline Real rand_range(const Real l, const Real u) {
+        AT(u >= l, "Bounds reversed");
+        return l + (Real)rand()*(u-l)/RAND_MAX;
+    }
     
-    std::cout << "Roots: " << r << "\n";
-
-    return 0;
 }
+
+#endif
+
+#endif

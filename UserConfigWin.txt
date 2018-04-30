@@ -27,7 +27,7 @@ if(LINK_WITH_LIBSBML)
     set(LIBXML2_DIR "None" CACHE FILEPATH "Root directory of libxml2 deployment")
     set(LIBXML2_LIBDIR ${LIBXML2_DIR}/lib)
     message("LIBXML2_LIBDIR = ${LIBXML2_LIBDIR}")
-    
+
     link_directories(${LIBSBML_LIBDIR})
     link_directories(${LIBXML2_LIBDIR})
 
@@ -35,17 +35,17 @@ if(LINK_WITH_LIBSBML)
 endif()
 
 # Static runtime
-foreach(flag
-    CMAKE_C_FLAGS_RELEASE CMAKE_C_FLAGS_RELWITHDEBINFO
-    CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_DEBUG_INIT
-    CMAKE_CXX_FLAGS_RELEASE  CMAKE_CXX_FLAGS_RELWITHDEBINFO
-    CMAKE_CXX_FLAGS_DEBUG  CMAKE_CXX_FLAGS_DEBUG_INIT)
-    string(REPLACE "/MD"  "/MT" "${flag}" "${${flag}}")
-    set("${flag}" "${${flag}} /EHsc")
-endforeach()
+# foreach(flag
+#     CMAKE_C_FLAGS_RELEASE CMAKE_C_FLAGS_RELWITHDEBINFO
+#     CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_DEBUG_INIT
+#     CMAKE_CXX_FLAGS_RELEASE  CMAKE_CXX_FLAGS_RELWITHDEBINFO
+#     CMAKE_CXX_FLAGS_DEBUG  CMAKE_CXX_FLAGS_DEBUG_INIT)
+#     string(REPLACE "/MD"  "/MT" "${flag}" "${${flag}}")
+#     set("${flag}" "${${flag}} /EHsc")
+# endforeach()
 
 # Python
-set(ENABLE_PYTHON3_BINDINGS ON CACHE BOOL "Enable Python 3 bindings")
+set(ENABLE_PYTHON3_BINDINGS OFF CACHE BOOL "Enable Python 3 bindings")
 set(ENABLE_PYTHON2_BINDINGS OFF CACHE BOOL "Enable Python 2 bindings")
 
 if(ENABLE_PYTHON3_BINDINGS OR ENABLE_PYTHON2_BINDINGS)

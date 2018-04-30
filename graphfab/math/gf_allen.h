@@ -27,88 +27,80 @@
 
 //== FILEDOC =========================================================================
 
-/** @file autolayout.h
- * @brief SBML layout interface in C
+/** @file allen.h
+ * @brief Intervals
   */
 
 //== BEGINNING OF CODE ===============================================================
 
-#ifndef __SBNW_AUTOLAYOUT_H_
-#define __SBNW_AUTOLAYOUT_H_
+#ifndef __SBNW_ALLEN_H_
+#define __SBNW_ALLEN_H_
 
 //== INCLUDES ========================================================================
 
 #include "graphfab/core/SagittariusCore.h"
-#include "graphfab/sbml/gf_autolayoutSBML.h"
-#include "graphfab/sbml/gf_layout.h"
-#include "graphfab/layout/gf_fr.h"
+#include "graphfab/math/gf_min_max.h"
+
+//-- C++ code --
+#ifdef __cplusplus
+
+namespace Graphfab {
+    
+    class Interval {
+        public:
+            /// Reorder endpoints if necessary
+            Interval(const Real a, const Real b) {
+                if(a <= b) {
+                    _a = a;
+                    _b = b;
+                } else {
+                    _a = b;
+                    _b = a;
+                }
+            }
+            
+            /// Number-one reason why ignoring qualifiers is not okay
+            Real a() const { return _a; }
+            
+            /// Returns reference
+            Real& a() { return _a; }
+            
+            Real b() const { return _b; }
+            
+            Real& b() { return _b; }
+        private:
+            /// Endpoints, _a < _b
+            Real _a, _b;
+    };
+
+    /// Get the distance between two intervals [u,v] and [x,y]; zero if they intersect.
+    inline Real allenDist(const Real u, const Real v, const Real x, const Real y) {
+        if(!(v < x || y < u))
+            //intersect
+            return 0.;
+        Real a = x-v, b=u-y; //one will be negative
+        return max(a,b);
+    }
+
+    /// allenDist returns absolute val of this; difficult to explain; used in @ref NetworkElement::forceVec
+    inline Real allenOrdered(const Real u, const Real v, const Real x, const Real y) {
+        // think of it like the result of b-a, where b and a are intervals
+        if(!(v < x || y < u))
+            //intersect
+            return 0.;
+        if(v < x)
+            return x-v; //positive
+        else
+            return y-u; //negative
+    }
+    
+    /// Is the point in the interval?
+    inline bool pointInInterval(const Real p, const Interval& i) {
+        return (i.a() <= p && p <= i.b()) ? true : false;
+    }
+    
+}
 
 #endif
 
-
-///*! \mainpage libSBNW
-// *
-// * \section intro_sec Introduction
-// *
-// * libSBNW is a SBML compliant layout generation program.
-// *
-//
-// Example:
-//
-// \code
-//
-//       #include "autolayoutc_api.h"
-//
-//       //...
-//
-//       // type to store layout info
-//       gf_layoutInfo* l;
-//
-//
-//       // load the model
-//       gf_SBMLModel* mod = gf_loadSBMLbuf(buf);
-// 
-//
-//       // options for layout algo
-//       fr_options opt;
-//
-//
-//       // read layout info from the model
-//       l = gf_processLayout(mod);
-//
-//
-//       // randomize node positions
-//       gf_randomizeLayout(l);
-//
-//       // do layout algo
-//       opt.k = 20.;
-//       opt.boundary = 1;
-//       opt.mag = 0;
-//       opt.grav = 0.;
-//       opt.baryx = opt.baryy = 500.;
-//       opt.autobary = 1;
-//       gf_doLayoutAlgorithm(opt, l);
-//
-//       // save layout information to new SBML file
-//       gf_writeSBMLwithLayout(outfile, mod, l);
-//
-//
-//       // run destructors on the model
-//       gf_freeSBMLModel(mod);
-//
-//
-//       // run destructors on the layout
-//       gf_freeLayoutInfo(l);
-//
-// \endcode
-//
-// * \section install_sec Installation
-// *
-// * Installation documentation is provided at https://github.com/0u812/sbnw.
-
-
-// \defgroup C_API All C Methods
-
-//
-//*/
-//
+#endif

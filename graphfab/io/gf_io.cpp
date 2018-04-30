@@ -27,17 +27,20 @@
 
 //== BEGINNING OF CODE ===============================================================
 
+//== INCLUDES ========================================================================
+
 #include "graphfab/core/SagittariusCore.h"
-#include "graphfab/math/gf_cubic.h"
+#include "graphfab/diag/gf_error.h"
+#include "graphfab/network/gf_network.h"
 
-#include <iostream>
+#include <exception>
+#include <typeinfo>
 
-using namespace Graphfab;
-
-int main(int argc, char* argv[]) {
-    CubicRoots r(-5., 1., 1.);
+namespace Graphfab {
     
-    std::cout << "Roots: " << r << "\n";
+    void indent(std::ostream& os, uint32 ind) {
+        for(uint32 i=0; i<ind; ++i)
+            os << " ";
+    }
 
-    return 0;
 }

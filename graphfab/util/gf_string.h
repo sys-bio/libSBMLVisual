@@ -25,19 +25,40 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+//== FILEDOC =========================================================================
+
+/** @file string.h
+ * @brief C string utilities
+  */
+
 //== BEGINNING OF CODE ===============================================================
 
+#ifndef __SBNW_UTIL_STRING_H_
+#define __SBNW_UTIL_STRING_H_
+
+//== INCLUDES ========================================================================
+
 #include "graphfab/core/SagittariusCore.h"
-#include "graphfab/math/gf_cubic.h"
 
-#include <iostream>
+//-- C methods --
 
-using namespace Graphfab;
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-int main(int argc, char* argv[]) {
-    CubicRoots r(-5., 1., 1.);
+// allocates memory & copies src into it - user must deallocate
+/** @internal
+ */
+_GraphfabExport char* gf_strclone(const char* src);
+
+/** @brief Free a C string (char*)
+ *  @param[in] str The string to free
+ *  \ingroup C_API
+ */
+_GraphfabExport void gf_strfree(char* str);
     
-    std::cout << "Roots: " << r << "\n";
+#ifdef __cplusplus
+}//extern "C"
+#endif
 
-    return 0;
-}
+#endif

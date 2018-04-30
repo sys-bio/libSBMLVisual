@@ -25,19 +25,32 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+//== FILEDOC =========================================================================
+
+/** @file network.h
+ * @brief The network model
+  */
+
 //== BEGINNING OF CODE ===============================================================
 
+#ifndef __SBNW_IO_H_
+#define __SBNW_IO_H_
+
+//== INCLUDES ========================================================================
+
 #include "graphfab/core/SagittariusCore.h"
-#include "graphfab/math/gf_cubic.h"
 
 #include <iostream>
 
-using namespace Graphfab;
+//-- C++ code --
+#ifdef __cplusplus
 
-int main(int argc, char* argv[]) {
-    CubicRoots r(-5., 1., 1.);
+namespace Graphfab {
+
+    void indent(std::ostream& os, uint32 ind);
     
-    std::cout << "Roots: " << r << "\n";
-
-    return 0;
 }
+
+#endif
+
+#endif

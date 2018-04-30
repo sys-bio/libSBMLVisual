@@ -32,12 +32,12 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "graphfab/sbml/autolayoutSBML.h"
-#include "graphfab/interface/layout.h"
-#include "graphfab/layout/fr.h"
+#include "graphfab/sbml/gf_autolayoutSBML.h"
+#include "graphfab/sbml/gf_layout.h"
+#include "graphfab/layout/gf_fr.h"
 
 #if SBNW_USE_MAGICK
-#include "graphfab/draw/magick.h"
+#include "graphfab/draw/gf_magick.h"
 #endif
 
 #include <stdlib.h>
@@ -233,7 +233,7 @@ int main(int argc, char* argv[]) {
           gf_network* nw = gf_getNetworkp(l);
 
           // may leak
-          printf("Network ID: %s\n", gf_nw_getId(nw));
+          printf("Network ID: %s\n", gf_nw_getID(nw));
           printf("Network # nodes: %zu\n", gf_nw_getNumNodes(nw));
 
           gf_node* n = gf_nw_getNodep(nw, 0);

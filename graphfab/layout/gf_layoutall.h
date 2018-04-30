@@ -25,19 +25,22 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+//== FILEDOC =========================================================================
+
+/** @file layoutall.h
+ * @brief Includes all layout elements
+  */
+
 //== BEGINNING OF CODE ===============================================================
 
+#ifndef __SBNW_LAYOUT_ALL_H_
+#define __SBNW_LAYOUT_ALL_H_
+
+//== INCLUDES ========================================================================
+
 #include "graphfab/core/SagittariusCore.h"
-#include "graphfab/math/gf_cubic.h"
+#include "graphfab/layout/gf_point.h"
+#include "graphfab/layout/gf_curve.h"
+#include "graphfab/layout/gf_canvas.h"
 
-#include <iostream>
-
-using namespace Graphfab;
-
-int main(int argc, char* argv[]) {
-    CubicRoots r(-5., 1., 1.);
-    
-    std::cout << "Roots: " << r << "\n";
-
-    return 0;
-}
+#endif

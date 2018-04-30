@@ -25,19 +25,58 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+//== FILEDOC =========================================================================
+
+/** @file canvas.h
+ * @brief Canvas for drawing diagram, dimensions
+  */
+
 //== BEGINNING OF CODE ===============================================================
 
+#ifndef __SBNW_LAYOUT_CANVAS_H_
+#define __SBNW_LAYOUT_CANVAS_H_
+
+//== INCLUDES ========================================================================
+
 #include "graphfab/core/SagittariusCore.h"
-#include "graphfab/math/gf_cubic.h"
+#include "graphfab/sbml/gf_autolayoutSBML.h"
+#include "graphfab/layout/gf_box.h"
 
-#include <iostream>
+//-- C++ code --
+#ifdef __cplusplus
 
-using namespace Graphfab;
+namespace Graphfab {
 
-int main(int argc, char* argv[]) {
-    CubicRoots r(-5., 1., 1.);
+    /** @brief Drawing canvas
+     */
+    class Canvas {
+        public:
+            /// Get the canvas width
+            Real getWidth() const;
+            
+            /// Get the canvas height
+            Real getHeight() const;
+            
+            /// Get the canvas width
+            void setWidth(Real w);
+            
+            /// Get the canvas height
+            void setHeight(Real h);
+            
+            /// Get canvas as a box
+            Box getBox() const { return Box(Point(0,0), Point(getWidth(),getHeight())); }
+            
+        protected:
+            // member vars
+            /// Width
+            Real _w;
+            
+            /// Height
+            Real _h;
+    };
     
-    std::cout << "Roots: " << r << "\n";
-
-    return 0;
 }
+
+#endif
+
+#endif

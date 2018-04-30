@@ -91,11 +91,6 @@ class PyQtRenderer(pyfab_app.PyfabRenderer):
           painter.setBrush(pyfab_app.QColor(0,0,0,100))
           painter.drawRoundedRect(pyfab_app.QRectF(x0, y0, width,
               height), cornerrad, cornerrad)
-        elif node.custom.beacon:
-          painter.setCompositionMode(pyfab_app.QPainter.CompositionMode_Screen)
-          painter.setBrush(pyfab_app.QColor(255,255,255,100))
-          painter.drawRoundedRect(pyfab_app.QRectF(x0, y0, width,
-              height), cornerrad, cornerrad)
       else:
         node.custom = pyfab_app.NodeData()
 

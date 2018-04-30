@@ -27,17 +27,39 @@
 
 //== BEGINNING OF CODE ===============================================================
 
+//== INCLUDES ========================================================================
+
 #include "graphfab/core/SagittariusCore.h"
-#include "graphfab/math/gf_cubic.h"
+#include "graphfab/sbml/gf_layout.h"
+#include "graphfab/diag/gf_error.h"
+#include "graphfab/util/gf_string.h"
 
-#include <iostream>
+#include "sbml/SBMLTypes.h"
+#include "sbml/packages/layout/common/LayoutExtensionTypes.h"
 
-using namespace Graphfab;
+#include <exception>
 
-int main(int argc, char* argv[]) {
-    CubicRoots r(-5., 1., 1.);
-    
-    std::cout << "Roots: " << r << "\n";
+static std::string lastError_;
 
-    return 0;
+void gf_emitError(const char* str) {
+    fprintf(stderr, "%s",  str);
+}
+
+void gf_emitWarn(const char* str) {
+    fprintf(stderr, "%s", str);
+}
+
+char* gf_getLastError() {
+  if (lastError_.size())
+    return gf_strclone(lastError_.c_str());
+  else
+    return gf_strclone("");
+}
+
+void gf_clearError() {
+  lastError_ = "";
+}
+
+void gf_setError(const char* msg) {
+  lastError_ = msg;
 }

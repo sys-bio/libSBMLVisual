@@ -25,19 +25,36 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+//== FILEDOC =========================================================================
+
+/** @file min_max.h
+ * @brief Min & max for reals
+  */
+
 //== BEGINNING OF CODE ===============================================================
 
+#ifndef __SBNW_MIN_MAX_H_
+#define __SBNW_MIN_MAX_H_
+
+//== INCLUDES ========================================================================
+
 #include "graphfab/core/SagittariusCore.h"
-#include "graphfab/math/gf_cubic.h"
 
-#include <iostream>
+//-- C++ code --
+#ifdef __cplusplus
 
-using namespace Graphfab;
+namespace Graphfab {
 
-int main(int argc, char* argv[]) {
-    CubicRoots r(-5., 1., 1.);
+    inline Real min(const Real x, const Real y) {
+        return x < y ? x : y;
+    }
+
+    inline Real max(const Real x, const Real y) {
+        return x > y ? x : y;
+    }
     
-    std::cout << "Roots: " << r << "\n";
-
-    return 0;
 }
+
+#endif
+
+#endif

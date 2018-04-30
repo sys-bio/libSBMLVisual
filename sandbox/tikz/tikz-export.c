@@ -32,13 +32,13 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "graphfab/sbml/autolayoutSBML.h"
-#include "graphfab/interface/layout.h"
-#include "graphfab/layout/fr.h"
-#include "graphfab/draw/tikz.h"
+#include "graphfab/sbml/gf_autolayoutSBML.h"
+#include "graphfab/sbml/gf_layout.h"
+#include "graphfab/layout/gf_fr.h"
+#include "graphfab/draw/gf_tikz.h"
 
 #if SBNW_USE_MAGICK
-#include "graphfab/draw/magick.h"
+#include "graphfab/draw/gf_magick.h"
 #endif
 
 #include <stdlib.h>
