@@ -25,19 +25,32 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+//== FILEDOC =========================================================================
+
+/** @file sig.h
+ * @brief Sigmoid function
+  */
+
 //== BEGINNING OF CODE ===============================================================
 
+#ifndef __SBNW_MATH_SIG_H_
+#define __SBNW_MATH_SIG_H_
+
+//== INCLUDES ========================================================================
+
 #include "graphfab/core/SagittariusCore.h"
-#include "graphfab/math/gf_cubic.h"
 
-#include <iostream>
+//-- C++ code --
+#ifdef __cplusplus
 
-using namespace Graphfab;
+namespace Graphfab {
 
-int main(int argc, char* argv[]) {
-    CubicRoots r(-5., 1., 1.);
+    inline Real sig(const Real t) {
+        return 1./(1. + exp(-t));
+    }
     
-    std::cout << "Roots: " << r << "\n";
-
-    return 0;
 }
+
+#endif
+
+#endif

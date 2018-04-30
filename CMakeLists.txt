@@ -3,18 +3,7 @@ project (SBNW)
 
 set(SBNW_MAJOR_VER  1)
 set(SBNW_MINOR_VER  3)
-set(SBNW_PATCHLEVEL 26)
-
-set(SBNW_VER_STRING "${SBNW_MAJOR_VER}.${SBNW_MINOR_VER}.${SBNW_PATCHLEVEL}")
-
-set(LINK_WITH_LIBSBML ON)
-set(SBNW_LINK_TO_STATIC_LIBSBML ON)
-
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  set(FPIC_FLAG "-fPIC")
-else()
-  set(FPIC_FLAG)
-endif()
+set(SBNW_PATCHLEVEL 3)
 
 #User Configuration
 if(${WIN32})
@@ -35,25 +24,40 @@ else()
   set(WITH_GTEST OFF CACHE BOOL "Use gtest framework")
 endif()
 
-find_package(PythonInterp)
-if(PYTHONINTERP_FOUND)
-  set(Python_ADDITIONAL_VERSIONS ${PYTHON_VERSION_STRING})
+# Python 3
+find_package(PythonLibs 3.2)
+if(PYTHONLIBS_FOUND)
+  set(ENABLE_PYTHON3_BINDINGS ON CACHE BOOL "Enable Python 3 bindings")
+  set(PYTHON3_INCLUDE_DIR "${PYTHON_INCLUDE_DIR}" CACHE PATHS "Python3 includes")
+  set(PYTHON3_LIBRARY "${PYTHON_LIBRARY}" CACHE STRING "Python3 lib")
+  unset(PYTHON_INCLUDE_DIR CACHE)
+  unset(PYTHON_LIBRARY CACHE)
+  unset(PYTHON_LIBRARY_DEBUG CACHE)
+  unset(PYTHONLIBS_FOUND)
 else()
-  message(ERROR FATAL "Unable to find Python")
+  set(ENABLE_PYTHON3_BINDINGS OFF CACHE BOOL "Enable Python 3 bindings")
 endif()
 
-# Find Python libs
-find_package(PythonLibs)
-message(STATUS "Using Python include directory ${PYTHON_INCLUDE_DIR}")
+# Python 2
+# find_package(PythonLibs 2.7 EXACT) # Maybe some day, CMake...
+if(PYTHONLIBS_FOUND)
+  set(ENABLE_PYTHON2_BINDINGS ON CACHE BOOL "Enable Python 2 bindings")
+  # You need to set these manually
+  set(PYTHON2_INCLUDE_DIR "${PYTHON_INCLUDE_DIR}" CACHE PATHS "Python2 includes")
+  set(PYTHON2_LIBRARY "${PYTHON_LIBRARY}" CACHE STRING "Python2 lib")
+  unset(PYTHON_INCLUDE_DIR CACHE)
+  unset(PYTHON_LIBRARY CACHE)
+  unset(PYTHON_LIBRARY_DEBUG CACHE)
+else()
+  set(ENABLE_PYTHON2_BINDINGS OFF CACHE BOOL "Enable Python 2 bindings")
+  set(PYTHON2_LIBRARY "${PYTHON_LIBRARY}" CACHE STRING "NOTFOUND")
+endif()
 
 #Dependencies
-
 #SBML
-find_library(LIBSBML_LIBRARY sbml libsbml HINTS ${LIBSBML_PREFIX}/lib)
-find_library(LIBSBML_STATIC_LIBRARY sbml-static REQUIRED libsbml-static HINTS ${LIBSBML_PREFIX}/lib)
-find_path(LIBSBML_INCLUDE_DIR sbml/SBMLTypes.h HINTS ${LIBSBML_PREFIX}/include)
-include_directories(${LIBSBML_INCLUDE_DIR})
-
+if(LINK_WITH_LIBSBML)
+    include_directories(${LIBSBML_INCLUDE})
+endif()
 #Image Magick
 if(LINK_WITH_MAGICK)
     set(SBNW_USE_MAGICK 1)

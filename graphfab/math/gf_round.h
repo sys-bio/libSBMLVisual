@@ -25,19 +25,32 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+//== FILEDOC =========================================================================
+
+/** @file min_max.h
+ * @brief Min & max for reals
+  */
+
 //== BEGINNING OF CODE ===============================================================
 
+#ifndef __SBNW_MATH_ROUND_H_
+#define __SBNW_MATH_ROUND_H_
+
+//== INCLUDES ========================================================================
+
 #include "graphfab/core/SagittariusCore.h"
-#include "graphfab/math/gf_cubic.h"
 
-#include <iostream>
+//-- C++ code --
+#ifdef __cplusplus
 
-using namespace Graphfab;
+namespace Graphfab {
 
-int main(int argc, char* argv[]) {
-    CubicRoots r(-5., 1., 1.);
+    inline int64 sround(const Real x) {
+        return x + 0.5;
+    }
     
-    std::cout << "Roots: " << r << "\n";
-
-    return 0;
 }
+
+#endif
+
+#endif

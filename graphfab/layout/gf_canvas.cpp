@@ -27,17 +27,34 @@
 
 //== BEGINNING OF CODE ===============================================================
 
+//== INCLUDES ========================================================================
+
 #include "graphfab/core/SagittariusCore.h"
-#include "graphfab/math/gf_cubic.h"
+#include "graphfab/layout/gf_canvas.h"
 
-#include <iostream>
-
-using namespace Graphfab;
-
-int main(int argc, char* argv[]) {
-    CubicRoots r(-5., 1., 1.);
+namespace Graphfab {
     
-    std::cout << "Roots: " << r << "\n";
+    //--CLASS Canvas--
+    Real Canvas::getWidth() const {
+        return _w;
+    }
+    
+    
+    Real Canvas::getHeight() const {
+        return _h;
+    }
+    
+    void Canvas::setWidth(Real w) {
+        if(w < 0.)
+            SBNW_THROW(InvalidParameterException, "Width cannot be negative", "Canvas::setWidth");
+        _w = w;
+    }
+    
+    
+    void Canvas::setHeight(Real h) {
+        if(h < 0.)
+            SBNW_THROW(InvalidParameterException, "Height cannot be negative", "Canvas::setWidth");
+        _h = h;
+    }
 
-    return 0;
 }

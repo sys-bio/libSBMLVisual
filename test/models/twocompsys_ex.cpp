@@ -33,9 +33,9 @@
 #include <string.h>
 #include <malloc.h>
 
-#include "graphfab/sbml/autolayoutSBML.h"
-#include "graphfab/sbml/layout.h"
-#include "graphfab/layout/fr.h"
+#include "graphfab/sbml/gf_autolayoutSBML.h"
+#include "graphfab/sbml/gf_layout.h"
+#include "graphfab/layout/gf_fr.h"
 #include "gtest/gtest.h"
 
 #include <stdlib.h>

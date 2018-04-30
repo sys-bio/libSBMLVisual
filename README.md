@@ -1,11 +1,13 @@
 # libSBNW: A Network Viewer for SBML
-[![GitHub version](https://badge.fury.io/gh/sys-bio%2Fsbnw.svg)](http://badge.fury.io/gh/sys-bio%2Fsbnw)
+[![GitHub version](https://badge.fury.io/gh/0u812%2Fsbnw.svg)](http://badge.fury.io/gh/0u812%2Fsbnw)
+
+## HAS NOW MOVED TO https://github.com/sys-bio/sbnw
 
 ## Introduction
 libSBNW is a network viewer which supports autolayout of reaction networks and uses libSBML for reading/writing models. The intent of this project is to provide user and developers of systems/synthetic biology software tools a convenient, portable library to enable automatic layout of SBML models and to record this information in the SBML layout extension. To facilitate this, the functionality of the library is provided as a custom plugin within the Spyder-based [Tellurium](http://tellurium.analogmachine.org/) modeling environment. For developers, pre-built binaries including bindings for Python 2 are provided via the [release](https://github.com/0u812/sbnw/releases) page on this site.
 
 ## Use Cases
-The library is designed as a reusable implementation of an automatic layout for SBML. As such, it has many downstream uses. To name a few:
+The library is designed as a reusable implementation of a automatic layout for SBML. As such, it has many downstream uses. To name a few:
 
 * Called by Python code via the included Python bindings
 * Via the network viewer GUI plugin for Tellurium
@@ -26,7 +28,7 @@ The SBML [test models](https://github.com/0u812/sbnw/releases/download/1.3.2/tes
 
 ## Online Documentation
 
-Online C API documentation (via Doxygen) can be found at http://sys-bio.github.io/sbnw/docs. Python documentation can be found at http://sys-bio.github.io/sbnw/sphinx.
+Online C API documentation (via Doxygen) can be found at http://0u812.github.io/sbnw/docs. Python documentation can be found at http://0u812.github.io/sbnw/sphinx.
 
 ## Using the Python bindings
 
@@ -36,7 +38,7 @@ Online C API documentation (via Doxygen) can be found at http://sys-bio.github.i
 ## How to compile the library
 
  * Install the latest version of <a href="http://sourceforge.net/projects/sbml/files/libsbml/">libSBML</a> or build it from source (tested with 5.6, 5.8, 5.10, 5.11).
- * **NOTE**: If you install a pre-built binary of libSBML then you must compile SBNW with the same version of Visual Studio as used to build libSBML.
+ * **NOTE**: If you install a pre-built binary of libSBML then you must compile SBNW with the same version of Visual Studio as used to build libSBML (2010 at the time of writing).
  * Clone the latest revision of the <a href="https://github.com/0u812/sbnw">master branch</a> to Documents\sbnw via git. In the Documents folder, run `git clone https://github.com/0u812/sbnw.git`
  * Download and instsall <a href="http://www.cmake.org/">CMake</a> (compatible with major version 2 or 3).
  * Open CMake and select Documents\sbnw as the source directory.
@@ -107,7 +109,7 @@ The C API is exposed via graphfab/autolayoutc_api.h.  There is an example in san
 ## License
 
 This project is licensed under the BSD 3-clause license:
-### Copyright (c) 2012-2016, J. Kyle Medley and Herbert M. Sauro
+### Copyright (c) 2012-2015, J. Kyle Medley and Herbert M. Sauro
 ### All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

@@ -85,7 +85,6 @@ def get_default_options():
       # interaction
       'auto_recenter_junctions': False,
       'stiffness': 50.,
-      'gravity': 0.,
       # sbml
       'override_sbml_ns': False,
       'sbml_level': 3, # only if override_sbml_ns is True

@@ -25,19 +25,65 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+//== FILEDOC =========================================================================
+
+/** @file error.h
+ * @brief Error information
+  */
+
 //== BEGINNING OF CODE ===============================================================
 
+#ifndef __SBNW_DIAG_ERROR_H_
+#define __SBNW_DIAG_ERROR_H_
+
+//== INCLUDES ========================================================================
+
 #include "graphfab/core/SagittariusCore.h"
-#include "graphfab/math/gf_cubic.h"
+#include "graphfab/sbml/gf_autolayoutSBML.h"
 
-#include <iostream>
 
-using namespace Graphfab;
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-int main(int argc, char* argv[]) {
-    CubicRoots r(-5., 1., 1.);
-    
-    std::cout << "Roots: " << r << "\n";
+/**
+ * @brief Emit an error
+ * @param[in] str The error message
+ */
+_GraphfabExport void gf_emitError(const char* str);
 
-    return 0;
-}
+/**
+ * @brief Emit a warning
+ * @param[in] str The warning message
+ */
+_GraphfabExport void gf_emitWarn(const char* str);
+
+/**
+ * @brief Register an error listener
+ * @param[in] listener The listener
+ */
+_GraphfabExport void gf_registerErrorListener(void (*)(const char* msg));
+
+/** @brief Gets the last error
+ *  @return The error message (owned by callee)
+ *  \ingroup C_API
+ */
+_GraphfabExport char* gf_getLastError();
+
+/** @brief Clears the last error
+ *  \ingroup C_API
+ */
+_GraphfabExport void gf_clearError();
+
+/**
+ * @brief Sets the last error
+ * @param[in] msg The error message (is copied)
+ *  \ingroup Internal
+ */
+_GraphfabExport void gf_setError(const char* msg);
+
+#ifdef __cplusplus
+}//extern "C"
+#endif
+
+#endif

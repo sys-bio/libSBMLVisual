@@ -25,19 +25,48 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+//== FILEDOC =========================================================================
+
+/** @file canvas.h
+ * @brief Canvas for drawing diagram, dimensions
+  */
+
 //== BEGINNING OF CODE ===============================================================
 
+#ifndef __SBNW_DRAW_MAGICK_H_
+#define __SBNW_DRAW_MAGICK_H_
+
+//== INCLUDES ========================================================================
+
 #include "graphfab/core/SagittariusCore.h"
-#include "graphfab/math/gf_cubic.h"
+#include "graphfab/sbml/gf_layout.h"
 
-#include <iostream>
+//-- C code --
 
-using namespace Graphfab;
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-int main(int argc, char* argv[]) {
-    CubicRoots r(-5., 1., 1.);
+/**
+ * @param[in] l Layout info
+ * @param[in] filename The filename
+ * @param[in] tf Pointer to @ref Affine2d describing the view transform
+ */
+void gf_MagickRenderToFile(gf_layoutInfo* l, const char* filename, void* tf);
+
+#ifdef __cplusplus
+}//extern "C"
+#endif
+
+//-- C++ code --
+#ifdef __cplusplus
+
+namespace Graphfab {
+
     
-    std::cout << "Roots: " << r << "\n";
-
-    return 0;
+    
 }
+
+#endif
+
+#endif

@@ -1,5 +1,5 @@
-/*== SAGITTARIUS =====================================================================
- * Copyright (c) 2012, Jesse K Medley
+/*== GRAPHFAB =======================================================================
+ * Copyright (c) 2012-2015 Jesse K Medley
  * All rights reserved.
 
  * Redistribution and use in source and binary forms, with or without
@@ -27,88 +27,73 @@
 
 //== FILEDOC =========================================================================
 
-/** @file autolayout.h
- * @brief SBML layout interface in C
+/**
+ * @author JKM
+ * @file tikz.h
+ * @date 01/13/2015
+ * @copyright BSD 3-clause (details in source)
+ * @brief Render TikZ plots
   */
 
 //== BEGINNING OF CODE ===============================================================
 
-#ifndef __SBNW_AUTOLAYOUT_H_
-#define __SBNW_AUTOLAYOUT_H_
+#ifndef __SBNW_DRAW_TIKZ_H_
+#define __SBNW_DRAW_TIKZ_H_
 
 //== INCLUDES ========================================================================
 
 #include "graphfab/core/SagittariusCore.h"
-#include "graphfab/sbml/gf_autolayoutSBML.h"
+#include "graphfab/layout/gf_box.h"
+#include "graphfab/layout/gf_canvas.h"
+#include "graphfab/network/gf_network.h"
 #include "graphfab/sbml/gf_layout.h"
-#include "graphfab/layout/gf_fr.h"
 
+#ifdef __cplusplus
+extern "C" {
 #endif
 
+/** @brief Render the model as a TikZ text script and return a pointer to the TikZ script.
+ *  @param[in] l The model/layout infor
+ *  \ingroup C_API
+ */
+_GraphfabExport const char* gf_renderTikZ(gf_layoutInfo* l);
 
-///*! \mainpage libSBNW
-// *
-// * \section intro_sec Introduction
-// *
-// * libSBNW is a SBML compliant layout generation program.
-// *
-//
-// Example:
-//
-// \code
-//
-//       #include "autolayoutc_api.h"
-//
-//       //...
-//
-//       // type to store layout info
-//       gf_layoutInfo* l;
-//
-//
-//       // load the model
-//       gf_SBMLModel* mod = gf_loadSBMLbuf(buf);
-// 
-//
-//       // options for layout algo
-//       fr_options opt;
-//
-//
-//       // read layout info from the model
-//       l = gf_processLayout(mod);
-//
-//
-//       // randomize node positions
-//       gf_randomizeLayout(l);
-//
-//       // do layout algo
-//       opt.k = 20.;
-//       opt.boundary = 1;
-//       opt.mag = 0;
-//       opt.grav = 0.;
-//       opt.baryx = opt.baryy = 500.;
-//       opt.autobary = 1;
-//       gf_doLayoutAlgorithm(opt, l);
-//
-//       // save layout information to new SBML file
-//       gf_writeSBMLwithLayout(outfile, mod, l);
-//
-//
-//       // run destructors on the model
-//       gf_freeSBMLModel(mod);
-//
-//
-//       // run destructors on the layout
-//       gf_freeLayoutInfo(l);
-//
-// \endcode
-//
-// * \section install_sec Installation
-// *
-// * Installation documentation is provided at https://github.com/0u812/sbnw.
+/** @brief Render the model as a TikZ text script and save the script to the indicated file name
+ *  @param[in] l The model/layout info
+ *  \ingroup C_API
+ */
+_GraphfabExport int gf_renderTikZFile(gf_layoutInfo* l, const char* filename);
 
+#ifdef __cplusplus
+}//extern "C"
+#endif
 
-// \defgroup C_API All C Methods
+//-- C++ code --
+# ifdef __cplusplus
 
-//
-//*/
-//
+# include <iostream>
+
+namespace Graphfab {
+    
+	class _GraphfabExport TikZRenderer {
+    public:
+      TikZRenderer(Box extents, Real widthcm, Real heightcm);
+
+      std::string str(Network* net, Canvas* can);
+
+      std::string process(Point p) const;
+
+      std::string formatNodeText(const std::string& text) const;
+
+    protected:
+      Box extents_;
+      Real widthcm_, heightcm_;
+  };
+
+    _GraphfabExport std::ostream& operator<<(std::ostream& o, const TikZRenderer& r);
+    
+}
+
+# endif
+
+#endif

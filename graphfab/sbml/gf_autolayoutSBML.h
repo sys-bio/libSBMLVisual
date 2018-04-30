@@ -25,19 +25,53 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+//== FILEDOC =========================================================================
+
+/** @file sbml.h
+ * @brief SBML interface
+  */
+
 //== BEGINNING OF CODE ===============================================================
 
+#ifndef __SBNW_SBML_H_
+#define __SBNW_SBML_H_
+
+//== INCLUDES ========================================================================
+
 #include "graphfab/core/SagittariusCore.h"
-#include "graphfab/math/gf_cubic.h"
 
-#include <iostream>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-using namespace Graphfab;
+/** @brief C wrapper for SBMLDocument
+ */
+typedef struct __gf_SBMLLayout {
+    void* pdoc; /// Pointer to SBMLDocument cast to void
+} gf_SBMLModel;
 
-int main(int argc, char* argv[]) {
-    CubicRoots r(-5., 1., 1.);
-    
-    std::cout << "Roots: " << r << "\n";
+/** @brief Destructor for @ref gf_SBMLModel
+ *  @param[in] lo The SBML model; all memory used by the model is freed
+ *  \ingroup C_API
+ */
+_GraphfabExport void gf_freeSBMLModel(gf_SBMLModel* lo);
 
-    return 0;
-}
+/** @brief Load SBML from memory buffer. Struct contains a pointer to the document.
+ *  @param[in] buf The buffer containing the SBML file
+ *  @param[out] r The SBML model; the model that contains the SBML info from the buffer
+ *  \ingroup C_API
+ */
+_GraphfabExport gf_SBMLModel* gf_loadSBMLbuf(const char* buf);
+
+/** @brief Load SBML from a file. Returns a pointer to a struct that contains a pointer to the document.
+ *  @param[in] buf A pointer to a string that hold the name of the file containing the SBML
+ *  @param[out] r The SBML model; the model that contains the SBML info from the buffer
+ *  \ingroup C_API
+ */
+_GraphfabExport gf_SBMLModel* gf_loadSBMLfile(const char* file);
+
+#ifdef __cplusplus
+}//extern "C"
+#endif
+
+#endif

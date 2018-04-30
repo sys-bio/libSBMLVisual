@@ -34,7 +34,7 @@
 
 #include "graphfab/core/SagittariusCommon.h"
 #include "graphfab/core/SagittariusException.hpp"
-#include "graphfab/util/string.h"
+#include "graphfab/util/gf_string.h"
 #include <exception>
 
 namespace Graphfab

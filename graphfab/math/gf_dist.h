@@ -25,19 +25,35 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+//== FILEDOC =========================================================================
+
+/** @file dist.h
+ * @brief Euclidean distance
+  */
+
 //== BEGINNING OF CODE ===============================================================
 
+#ifndef __SBNW_MATH_DIST_H_
+#define __SBNW_MATH_DIST_H_
+
+//== INCLUDES ========================================================================
+
 #include "graphfab/core/SagittariusCore.h"
-#include "graphfab/math/gf_cubic.h"
+#include "graphfab/layout/gf_point.h"
 
-#include <iostream>
+//-- C++ code --
+#ifdef __cplusplus
 
-using namespace Graphfab;
-
-int main(int argc, char* argv[]) {
-    CubicRoots r(-5., 1., 1.);
+namespace Graphfab {
     
-    std::cout << "Roots: " << r << "\n";
-
-    return 0;
+    /// 2d Euclidean distance
+    inline Real euclidean2d(const Point& x, const Point& y) {
+        Point d = x - y;
+        return sqrt(d.x*d.x + d.y*d.y);
+    }
+    
 }
+
+#endif
+
+#endif

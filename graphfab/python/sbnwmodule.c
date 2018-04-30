@@ -29,10 +29,10 @@
 #include "structmember.h"
 
 #include "graphfab/core/SagittariusCore.h"
-#include "graphfab/interface/layout.h"
-#include "graphfab/layout/fr.h"
-#include "graphfab/util/string.h"
-#include "graphfab/draw/tikz.h"
+#include "graphfab/sbml/gf_layout.h"
+#include "graphfab/layout/gf_fr.h"
+#include "graphfab/util/gf_string.h"
+#include "graphfab/draw/gf_tikz.h"
 
 #include <stdlib.h>
 
@@ -526,7 +526,13 @@ static int gfp_Compartment_rawinit(gfp_Compartment *self, gf_compartment c) {
 }
 
 static PyObject* gfp_Compartment_getAttro(gfp_Compartment *self, PyObject *attr) {
-    if(PyCompareString(attr, "width")) {
+    if(PyCompareString(attr, "min")) {
+        gf_point p = gf_compartment_getMinCorner(&self->c);
+        return gfp_PointToPyPoint(p);
+    } else if(PyCompareString(attr, "max")) {
+        gf_point p = gf_compartment_getMaxCorner(&self->c);
+        return gfp_PointToPyPoint(p);
+    } else if(PyCompareString(attr, "width")) {
         return Py_BuildValue("d", gf_compartment_getWidth(&self->c));
     } else if(PyCompareString(attr, "height")) {
         return Py_BuildValue("d", gf_compartment_getHeight(&self->c));
@@ -540,120 +546,17 @@ static int gfp_Compartment_SetAttro(gfp_Compartment* self, PyObject* attr, PyObj
     return PyObject_GenericSetAttr((PyObject*)self, attr, v);;
 }
 
-static PyObject* gfp_Compartment_add(gfp_Compartment *self, PyObject *args, PyObject *kwds);
-
-static PyObject* gfp_Compartment___contains__(gfp_Compartment *self, PyObject *args, PyObject *kwds);
-
-static PyObject *
-gfp_Compartment_getMin(gfp_Compartment *self, void *closure) {
-    gf_point p = gf_compartment_getMinCorner(&self->c);
-    return gfp_PointToPyPoint(p);
-}
-
-static int
-gfp_Compartment_setMin(gfp_Compartment *self, PyObject *value, void *closure) {
-    gf_point p;
-    PyObject* o=NULL;
-
-    o = PySequence_GetItem(value, 0);
-    if(!o) {
-        PyErr_SetString(SBNWError, "Failed to set property");
-        return -1;
-    }
-    p.x = PyFloat_AsDouble(o);
-    if(PyErr_Occurred()) {
-        PyErr_SetString(SBNWError, "Failed to set property");
-        return -1;
-    }
-    Py_XDECREF(o);
-
-    o = PySequence_GetItem(value, 1);
-    if(!o) {
-        PyErr_SetString(SBNWError, "Failed to set property");
-        return -1;
-    }
-    p.y = PyFloat_AsDouble(o);
-    if(PyErr_Occurred()) {
-        PyErr_SetString(SBNWError, "Failed to set property");
-        return -1;
-    }
-    Py_XDECREF(o);
-
-    gf_compartment_setMinCorner(&self->c, p);
-    return 0;
-}
-
-static PyObject *
-gfp_Compartment_getMax(gfp_Compartment *self, void *closure) {
-    gf_point p = gf_compartment_getMaxCorner(&self->c);
-    return gfp_PointToPyPoint(p);
-}
-
-static int
-gfp_Compartment_setMax(gfp_Compartment *self, PyObject *value, void *closure) {
-    gf_point p;
-    PyObject* o=NULL;
-
-    o = PySequence_GetItem(value, 0);
-    if(!o) {
-        PyErr_SetString(SBNWError, "Failed to set property");
-        return -1;
-    }
-    p.x = PyFloat_AsDouble(o);
-    if(PyErr_Occurred()) {
-        PyErr_SetString(SBNWError, "Failed to set property");
-        return -1;
-    }
-    Py_XDECREF(o);
-
-    o = PySequence_GetItem(value, 1);
-    if(!o) {
-        PyErr_SetString(SBNWError, "Failed to set property");
-        return -1;
-    }
-    p.y = PyFloat_AsDouble(o);
-    if(PyErr_Occurred()) {
-        PyErr_SetString(SBNWError, "Failed to set property");
-        return -1;
-    }
-    Py_XDECREF(o);
-
-    gf_compartment_setMaxCorner(&self->c, p);
-
-    return 0;
-}
-
 static PyMemberDef gfp_Compartment_members[] = {
+    {"min", T_OBJECT_EX, offsetof(gfp_Compartment,dead), READONLY,
+     "min"},
+    {"max",  T_OBJECT_EX, offsetof(gfp_Compartment,dead) , READONLY,
+     "max"},
     {"numelt", T_OBJECT_EX, offsetof(gfp_Compartment,dead), READONLY,
      "numelt"},
     {"width", T_OBJECT_EX, offsetof(gfp_Compartment,dead), READONLY,
      "width"},
     {"height", T_OBJECT_EX, offsetof(gfp_Compartment,dead), READONLY,
      "height"},
-    {NULL}  /* Sentinel */
-};
-
-static PyGetSetDef gfp_Compartment_getsetters[] = {
-    {"min",
-     (getter)gfp_Compartment_getMin, (setter)gfp_Compartment_setMin,
-     "The compartment's minimum corner",
-     NULL},
-    {"max",
-     (getter)gfp_Compartment_getMax, (setter)gfp_Compartment_setMax,
-     "The compartment's maximum corner",
-     NULL},
-    {NULL}  /* Sentinel */
-};
-
-static PyMethodDef gfp_Compartment_methods[] = {
-    {"add", (PyCFunction)gfp_Compartment_add, METH_VARARGS | METH_KEYWORDS,
-     "Add a node to this compartment\n\n"
-     ":param node: A node\n"
-    },
-    {"__contains__", (PyCFunction)gfp_Compartment___contains__, METH_VARARGS | METH_KEYWORDS,
-     "Return whether this compartment contains a node or reaction\n\n"
-     ":param x: A node or reaction\n"
-    },
     {NULL}  /* Sentinel */
 };
 
@@ -690,9 +593,9 @@ static PyTypeObject gfp_CompartmentType = {
     0,                         /* tp_weaklistoffset */
     0,                         /* tp_iter */
     0,                         /* tp_iternext */
-    gfp_Compartment_methods,   /* tp_methods */
-    gfp_Compartment_members,   /* tp_members */
-    gfp_Compartment_getsetters,/* tp_getset */
+    0,//Noddy_methods,             /* tp_methods */
+    gfp_Compartment_members,         /* tp_members */
+    0,                         /* tp_getset */
     0,                         /* tp_base */
     0,                         /* tp_dict */
     0,                         /* tp_descr_get */
@@ -801,7 +704,6 @@ static int gfp_Rxn_rawinit(gfp_Rxn *self, gf_reaction r, PyObject* speclist) {
 //     }
 //     fprintf(stderr, "  rxn raw init done\n");
 
-    Py_XDECREF(self->curv);
     self->curv = gfp_Rxn_getCurves(self, NULL);
 
     return 0;
@@ -1374,7 +1276,6 @@ typedef struct {
     PyObject* nodes;
     PyObject* rxns;
     PyObject* comps;
-    PyObject* uniquenodes;
 
     // added to condense object hierarchy
     gf_layoutInfo* l;
@@ -1391,7 +1292,6 @@ static void gfp_Network_dealloc(gfp_Network* self) {
     Py_XDECREF(self->nodes);
     Py_XDECREF(self->rxns);
     Py_XDECREF(self->comps);
-    Py_XDECREF(self->uniquenodes);
 
     Py_XDECREF(self->canv);
 
@@ -1410,7 +1310,6 @@ static PyObject* gfp_Network_new(PyTypeObject *type, PyObject *args, PyObject *k
         self->nodes = NULL;
         self->rxns  = NULL;
         self->comps = NULL;
-        self->uniquenodes = NULL;
 
         self->canv = NULL;
     }
@@ -1427,7 +1326,7 @@ static int gfp_Network_init(gfp_Network *self, PyObject *args, PyObject *kwds) {
 }
 
 static int gfp_Network_rawinit(gfp_Network *self, gf_network n, gf_layoutInfo* l) {
-    size_t i, numnodes, numrxns, numcomps, k, numuniquenodes;
+    size_t i, numnodes, numrxns, numcomps;
     
     self->n = n;
 
@@ -1436,8 +1335,6 @@ static int gfp_Network_rawinit(gfp_Network *self, gf_network n, gf_layoutInfo* l
     numnodes = gf_nw_getNumNodes(&self->n);
     numrxns  = gf_nw_getNumRxns (&self->n);
     numcomps = gf_nw_getNumComps(&self->n);
-    numuniquenodes = gf_nw_getNumUniqueNodes(&self->n);
-//     printf("gf_nw_getNumUniqueNodes: %zu\n", numuniquenodes);
     
     if(self->nodes)
       Py_XDECREF(self->nodes);
@@ -1449,7 +1346,6 @@ static int gfp_Network_rawinit(gfp_Network *self, gf_network n, gf_layoutInfo* l
     self->nodes = PyTuple_New(numnodes);
     self->rxns  = PyTuple_New(numrxns);
     self->comps = PyTuple_New(numcomps);
-    self->uniquenodes = PyTuple_New(numuniquenodes);
     
 //     fprintf(stderr, "layout raw init nodes\n");
     for(i=0; i<numnodes; ++i) {
@@ -1473,21 +1369,6 @@ static int gfp_Network_rawinit(gfp_Network *self, gf_network n, gf_layoutInfo* l
         PyTuple_SetItem(self->comps, i, (PyObject*)o);
         if(gfp_Compartment_rawinit(o, gf_nw_getCompartment(&self->n, i)))
             return 1;
-    }
-
-    for(i=0; i<numuniquenodes; ++i) {
-        for (k=0; k<numnodes; ++k) {
-          gf_node t1 = gf_nw_getNode(&self->n, k);
-          gf_node t2 = gf_nw_getUniqueNode(&self->n, i);
-          if (gf_node_isIdentical(&t1, &t2)) {
-            PyTuple_SetItem(self->uniquenodes, i, PyTuple_GetItem((PyObject*)self->nodes, k));
-            Py_INCREF(PyTuple_GetItem((PyObject*)self->nodes, k));
-            goto found_node;
-          }
-        }
-        PyErr_SetString(SBNWError, "Failed to find the node");
-        return 1;
-        found_node:;
     }
 
 //     fprintf(stderr, "layout raw init done\n");
@@ -1793,181 +1674,6 @@ PyObject* gfp_Network_FitToWindow(gfp_Network *self, PyObject *args, PyObject *k
     Py_RETURN_NONE;
 }
 
-PyObject* gfp_Network_getInstance(gfp_Network *self, PyObject *args, PyObject *kwds) {
-    static char *kwlist[] = {"node", "k", NULL};
-    gfp_Node* node=NULL;
-    gf_node instance;
-    int k = 0, l = 0;
-
-    if(!PyArg_ParseTupleAndKeywords(args, kwds, "O!i", kwlist, &gfp_NodeType, &node, &k)) {
-        PyErr_SetString(SBNWError, "Argument parsing failed");
-        return NULL;
-    }
-
-    if (!gf_node_isAliased(&node->n)) {
-      PyErr_SetString(SBNWError, "Node is not aliased");
-      return NULL;
-    }
-
-    instance = gf_nw_getInstance(&self->n, &node->n, k);
-
-    if (gf_haveError()) {
-      PyErr_SetString(SBNWError, "Unable to get instance");
-      return NULL;
-    }
-
-    for (l=0; l<gf_nw_getNumNodes(&self->n); ++l) {
-        gf_node z = gf_nw_getNode(&self->n, l);
-        if (gf_node_isIdentical(&instance, &z)) {
-            PyObject* r = PyTuple_GetItem((PyObject*)self->nodes, l);
-            Py_INCREF(r);
-            return r;
-        }
-    }
-
-    PyErr_SetString(SBNWError, "Instance not found");
-    return NULL;
-}
-
-PyObject* gfp_Network_getNumInstances(gfp_Network *self, PyObject *args, PyObject *kwds) {
-    static char *kwlist[] = {"node", NULL};
-    gfp_Node* node=NULL;
-
-    if(!PyArg_ParseTupleAndKeywords(args, kwds, "O!", kwlist, &gfp_NodeType, &node)) {
-        PyErr_SetString(SBNWError, "Argument parsing failed");
-        return NULL;
-    }
-
-    if (!gf_node_isAliased(&node->n)) {
-      PyErr_SetString(SBNWError, "Node is not aliased");
-      return NULL;
-    }
-
-    return PyLong_FromLong(gf_nw_getNumInstances(&self->n, &node->n));
-}
-
-static PyObject* gfp_NetworkConnectNode(gfp_Network *self, PyObject *args, PyObject *kwds) {
-    static char *kwlist[] = {"node", "reaction", "role", NULL};
-    gfp_Node* node=NULL;
-    gfp_Rxn* reaction=NULL;
-    const char* rolestr;
-    gf_specRole role;
-    #if SAGITTARIUS_DEBUG_LEVEL >= 2
-    printf("gfp_NetworkConnectNode called\n");
-    #endif
-
-    // parse args
-    if(!PyArg_ParseTupleAndKeywords(args, kwds, "O!O!s", kwlist, &gfp_NodeType, &node, &gfp_RxnType, &reaction, &rolestr)) {
-        PyErr_SetString(SBNWError, "Invalid argument(s)");
-        return NULL;
-    }
-
-    printf("Trying to connect node...\n");
-
-    role = gf_strToRole(rolestr);
-    if(gf_nw_connectNode(&self->n, &node->n, &reaction->r, role)) {
-        PyErr_SetString(SBNWError, "Unable to connect node");
-        return NULL;
-    }
-
-    Py_RETURN_NONE;
-}
-
-static PyObject* gfp_NetworkIsNodeConnected(gfp_Network *self, PyObject *args, PyObject *kwds) {
-    static char *kwlist[] = {"node", "reaction", NULL};
-    gfp_Node* node=NULL;
-    gfp_Rxn* reaction=NULL;
-    #if SAGITTARIUS_DEBUG_LEVEL >= 2
-    printf("gfp_NetworkIsNodeConnected called\n");
-    #endif
-
-    // parse args
-    if(!PyArg_ParseTupleAndKeywords(args, kwds, "O!O!", kwlist, &gfp_NodeType, &node, &gfp_RxnType, &reaction)) {
-        PyErr_SetString(SBNWError, "Invalid argument(s)");
-        return NULL;
-    }
-
-    return PyBool_FromLong(gf_nw_isNodeConnected(&self->n, &node->n, &reaction->r));
-}
-
-static PyObject* gfp_NetworkNewComp(gfp_Network *self, PyObject *args, PyObject *kwds) {
-    static char *kwlist[] = {"name", "id", NULL};
-    const char* id=NULL;
-    const char* name=NULL;
-    gf_compartment comp;
-
-    #if SAGITTARIUS_DEBUG_LEVEL >= 2
-    printf("gfp_NetworkNewComp called\n");
-    #endif
-
-    // parse args
-    if(!PyArg_ParseTupleAndKeywords(args, kwds, "s|s", kwlist,
-        &name, &id)) {
-        PyErr_SetString(SBNWError, "Invalid argument(s)");
-        return NULL;
-    }
-
-    comp = gf_nw_newCompartment(&self->n, id, name);
-    printf("gf_nw_newCompartment returned\n");
-    if(comp.c) {
-        gfp_Compartment* o = (gfp_Compartment*)PyObject_Call((PyObject*)&gfp_CompartmentType, PyTuple_New(0), NULL);
-        Py_INCREF(o); // because we are returning it
-        if(!gfp_Compartment_rawinit(o, comp)) {
-            PyObject* newcomps = gfp_ExtendPyTuple(self->comps, (PyObject*)o); // steals a reference to o
-            if(newcomps) {
-                Py_XDECREF(self->comps);
-                self->comps = newcomps;
-                printf("new comp refcnt: %lu\n", ((PyObject*)o)->ob_refcnt);
-                return (PyObject*)o;
-            }
-        }
-        // failed
-        Py_XDECREF(o);
-    }
-
-    PyErr_SetString(SBNWError, "Failed to create comp");
-    return NULL;
-}
-
-static PyObject* gfp_NetworkNewReaction(gfp_Network *self, PyObject *args, PyObject *kwds) {
-    static char *kwlist[] = {"name", "id", NULL};
-    const char* id=NULL;
-    const char* name=NULL;
-    gf_reaction rxn;
-
-    #if SAGITTARIUS_DEBUG_LEVEL >= 2
-    printf("gfp_NetworkNewReaction called\n");
-    #endif
-
-    // parse args
-    if(!PyArg_ParseTupleAndKeywords(args, kwds, "s|s", kwlist,
-        &name, &id)) {
-        PyErr_SetString(SBNWError, "Invalid argument(s)");
-        return NULL;
-    }
-
-    rxn = gf_nw_newReaction(&self->n, id, name);
-    printf("gf_nw_newCompartment returned\n");
-    if(rxn.r) {
-        gfp_Rxn* o = (gfp_Rxn*)PyObject_Call((PyObject*)&gfp_RxnType, PyTuple_New(0), NULL);
-        Py_INCREF(o); // because we are returning it
-        if(!gfp_Rxn_rawinit(o, rxn, self->nodes)) {
-            PyObject* newrxns = gfp_ExtendPyTuple(self->rxns, (PyObject*)o); // steals a reference to o
-            if(newrxns) {
-                Py_XDECREF(self->rxns);
-                self->rxns = newrxns;
-                printf("new reaction refcnt: %lu\n", ((PyObject*)o)->ob_refcnt);
-                return (PyObject*)o;
-            }
-        }
-        // failed
-        Py_XDECREF(o);
-    }
-
-    PyErr_SetString(SBNWError, "Failed to create reaction");
-    return NULL;
-}
-
 static PyMethodDef Network_methods[] = {
     {"randomize", (PyCFunction)gfp_NetworkRandomizeLayout, METH_VARARGS | METH_KEYWORDS,
      "Randomize the layout\n\n"
@@ -2019,33 +1725,6 @@ static PyMethodDef Network_methods[] = {
      ":param float xmax: The end of the window in X\n"
      ":param float ymax: The end of the window in Y\n"
     },
-    {"getnuminstances", (PyCFunction)gfp_Network_getNumInstances, METH_VARARGS | METH_KEYWORDS,
-     "Internal: Get the number of instances of the node"
-    },
-    {"getinstance", (PyCFunction)gfp_Network_getInstance, METH_VARARGS | METH_KEYWORDS,
-     "Internal: Get the kth instance of the node"
-    },
-    {"connectnode", (PyCFunction)gfp_NetworkConnectNode, METH_VARARGS | METH_KEYWORDS,
-     "Connect a node to a reaction\n\n"
-     ":param node: The node to connect\n"
-     ":param reaction: The reaction\n"
-     ":param role: The species role to use\n"
-    },
-    {"is_node_connected", (PyCFunction)gfp_NetworkIsNodeConnected, METH_VARARGS | METH_KEYWORDS,
-     "Return true if the node is connected to this reaction\n\n"
-     ":param node: The node to connect\n"
-     ":param reaction: The reaction\n"
-    },
-    {"newcomp", (PyCFunction)gfp_NetworkNewComp, METH_VARARGS | METH_KEYWORDS,
-     "Add a compartment to the network\n\n"
-     ":param str id: The compartment name\n"
-     ":param str id: The compartment id\n"
-    },
-    {"newreaction", (PyCFunction)gfp_NetworkNewReaction, METH_VARARGS | METH_KEYWORDS,
-     "Add a reaction to the network\n\n"
-     ":param str id: The reaction's name\n"
-     ":param str id: The reaction's id\n"
-    },
     {NULL}  /* Sentinel */
 };
 
@@ -2058,8 +1737,6 @@ static PyMemberDef gfp_Network_members[] = {
      "compartments"},
     {"canvas", T_OBJECT_EX, offsetof(gfp_Network, canv), 0,
      "canvas"},
-    {"uniquenodes", T_OBJECT_EX, offsetof(gfp_Network,uniquenodes), READONLY,
-     "uniquenodes"},
     {NULL}  /* Sentinel */
 };
 
@@ -2108,54 +1785,6 @@ static PyTypeObject gfp_NetworkType = {
     0,                         /* tp_alloc */
     gfp_Network_new,         /* tp_new */
 };
-
-// misc. methods
-
-static PyObject* gfp_Compartment_add(gfp_Compartment *self, PyObject *args, PyObject *kwds) {
-    gfp_Node* node=NULL;
-    static char *kwlist[] = {"node", NULL};
-
-    // parse args
-    if(!PyArg_ParseTupleAndKeywords(args, kwds, "|O!", kwlist,
-        &gfp_NodeType, &node
-    )) {
-        PyErr_SetString(SBNWError, "Invalid argument(s)");
-        return NULL;
-    }
-
-    if(gf_compartment_addNode(&self->c, &node->n)) {
-        PyErr_SetString(SBNWError, "Unable to add node");
-        return NULL;
-    }
-    Py_RETURN_NONE;
-}
-
-static PyObject* gfp_Compartment___contains__(gfp_Compartment *self, PyObject *args, PyObject *kwds) {
-    gfp_Node* node=NULL;
-    gfp_Rxn*  rxn =NULL;
-    static char *kwlist[] = {"x", NULL};
-
-    // parse args
-    if(!PyArg_ParseTupleAndKeywords(args, kwds, "|O!", kwlist,
-        &gfp_NodeType, &node
-    )) {
-        if(!PyArg_ParseTupleAndKeywords(args, kwds, "|O!", kwlist,
-            &gfp_RxnType, &rxn
-        )) {
-            PyErr_SetString(SBNWError, "Invalid argument(s)");
-            return NULL;
-        }
-    }
-
-    if(node)
-        return PyBool_FromLong(gf_compartment_containsNode(&self->c, &node->n));
-    else if(rxn)
-        return PyBool_FromLong(gf_compartment_containsReaction(&self->c, &rxn->r));
-    else {
-        PyErr_SetString(SBNWError, "Invalid argument(s)");
-        return NULL;
-    }
-}
 
 /// -- cubicintersec --
 
@@ -2352,6 +1981,14 @@ static PyObject* gfp_Layout_new(PyTypeObject *type, PyObject *args, PyObject *kw
     return (PyObject*)self;
 }
 
+static int gfp_Layout_init(gfp_Layout *self, PyObject *args, PyObject *kwds) {
+    #if SAGITTARIUS_DEBUG_LEVEL >= 2
+//     printf("gfp_Layout_init called\n");
+    #endif
+    
+    return 0;
+}
+
 static int gfp_Layout_rawinit(gfp_Layout* self, gf_layoutInfo* l) {
     #if SAGITTARIUS_DEBUG_LEVEL >= 2
 //     printf("layout raw init\n");
@@ -2370,28 +2007,6 @@ static int gfp_Layout_rawinit(gfp_Layout* self, gf_layoutInfo* l) {
     // set canvas object
     Py_INCREF(self->canv);
     self->network->canv = self->canv;
-
-    return 0;
-}
-
-static int gfp_Layout_init(gfp_Layout *self, PyObject *args, PyObject *kwds) {
-    int level=-1, version;
-    int width, height;
-    static char *kwlist[] = {"level", "version", "width", "height", NULL};
-
-    if(!PyArg_ParseTupleAndKeywords(args, kwds, "|iiii", kwlist, &level, &version, &width, &height)) {
-        PyErr_SetString(SBNWError, "Invalid arguments");
-        return -1;
-    }
-
-    if(level != -1) {
-        gf_layoutInfo* l = malloc(sizeof(gf_layoutInfo));
-        *l = gf_layoutInfo_new(level, version, width, height);
-        gfp_Layout_rawinit(self, l);
-    }
-    #if SAGITTARIUS_DEBUG_LEVEL >= 2
-//     printf("gfp_Layout_init called\n");
-    #endif
     
     return 0;
 }
@@ -2447,26 +2062,6 @@ PyObject* gfp_Layout_TF_FitToWindow(gfp_Layout *self, PyObject *args, PyObject *
     return (PyObject*)t;
 }
 
-PyObject* gfp_Layout_FirstQuad(gfp_Layout *self, PyObject *args, PyObject *kwds) {
-    static char *kwlist[] = {"x_disp", "y_disp", NULL};
-    double x_disp, y_disp;
-    gfp_Transform* t;
-
-    // unnecessary?
-    if(!gfp_Layout_Check((PyObject*)self))
-        return NULL;
-
-    if(!PyArg_ParseTupleAndKeywords(args, kwds, "dd", kwlist, &x_disp, &y_disp)) {
-        return NULL;
-    }
-
-    t = (gfp_Transform*)PyObject_Call((PyObject*)&gfp_TransformType, PyTuple_New(0), NULL);
-
-    gf_moveNetworkToFirstQuad(self->l, x_disp, y_disp);
-
-    Py_RETURN_NONE;
-}
-
 static PyMethodDef gfp_Layout_methods[] = {
     {"fitwindow", (PyCFunction)gfp_Layout_FitToWindow, METH_VARARGS | METH_KEYWORDS,
      "Pan & scale the network so it fits in the given window\n\n"
@@ -2477,9 +2072,6 @@ static PyMethodDef gfp_Layout_methods[] = {
     },
     {"tf_fitwindow", (PyCFunction)gfp_Layout_TF_FitToWindow, METH_VARARGS | METH_KEYWORDS,
      "Like fitwindow but just returns the transformation, does not apply"
-    },
-    {"firstquad", (PyCFunction)gfp_Layout_FirstQuad, METH_VARARGS | METH_KEYWORDS,
-     "Translates the network so that it resides in the first quadrant"
     },
     {NULL}  /* Sentinel */
 };
@@ -2586,7 +2178,6 @@ gfp_SBMLModel_dealloc(gfp_SBMLModel* self) {
 
     if(self->m)
         gf_freeSBMLModel(self->m);
-    self->m = NULL;
 
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -2596,7 +2187,7 @@ static PyObject* gfp_SBMLModel_new(PyTypeObject *type, PyObject *args, PyObject 
     #if SAGITTARIUS_DEBUG_LEVEL >= 2
     printf("gfp_SBMLModel_new called\n");
     #endif
-
+    
     self = (gfp_SBMLModel*)type->tp_alloc(type, 0);
     if(self) {
         self->m = NULL;
@@ -2614,30 +2205,13 @@ static int gfp_SBMLModel_init(gfp_SBMLModel *self, PyObject *args, PyObject *kwd
     const char *sbml;
     // gf_SBMLModel* m = NULL;
     static char *kwlist[] = {"sbml", NULL};
-    int level, version;
-    int width, height;
-    static char *kwlist2[] = {"level", "version", "width", "height", NULL};
     #if SAGITTARIUS_DEBUG_LEVEL >= 2
 //     printf("gfp_SBMLModel_init called\n");
     #endif
     
     if(!PyArg_ParseTupleAndKeywords(args, kwds, "s", kwlist, &sbml)) {
-//         PyErr_SetString(SBNWError, "Invalid SBML");
-        if(!PyArg_ParseTupleAndKeywords(args, kwds, "iiii", kwlist2, &level, &version, &width, &height)) {
-            PyErr_SetString(SBNWError, "Invalid arguments to sbnw.sbmlmodel");
-            return -1;
-        }
-        printf("gfp_SBMLModel_init create new model\n");
-        // create new model
-        self->m = malloc(sizeof(gf_SBMLModel));
-        *self->m = gf_SBMLModel_new();
-
-        self->layout = (gfp_Layout*)PyObject_Call((PyObject*)&gfp_LayoutType, Py_BuildValue("iiii", level, version, width, height), NULL);
-
-        self->network = self->layout->network;
-        Py_INCREF(self->network);
-
-        return 0;
+        PyErr_SetString(SBNWError, "Invalid SBML");
+        return -1;
     }
     if(!sbml)
       return -1;
@@ -2796,13 +2370,13 @@ gfp_SBMLModel_getLevel(gfp_SBMLModel *self, void *closure) {
     return PyLong_FromLong(self->layout->l->level);
 }
 
-static int
+static PyObject *
 gfp_SBMLModel_setLevel(gfp_SBMLModel *self, PyObject *value, void *closure) {
     self->layout->l->level = PyLong_AsLong(value);
     if(PyErr_Occurred) {
-      return -1;
+      return NULL;
     }
-    return 0;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2810,13 +2384,13 @@ gfp_SBMLModel_getVersion(gfp_SBMLModel *self, void *closure) {
     return PyLong_FromLong(self->layout->l->version);
 }
 
-static int
+static PyObject *
 gfp_SBMLModel_setVersion(gfp_SBMLModel *self, PyObject *value, void *closure) {
     self->layout->l->version = PyLong_AsLong(value);
     if(PyErr_Occurred) {
-      return -1;
+      return NULL;
     }
-    return 0;
+    Py_RETURN_NONE;
 }
 
 static PyGetSetDef gfp_SBMLModel_getseters[] = {
