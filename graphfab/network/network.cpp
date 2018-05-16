@@ -44,6 +44,8 @@
 #include <math.h>
 #include <stdlib.h> //rand
 
+using namespace libsbml;
+
 static std::string default_comp_id_ = "";
 
 namespace Graphfab {

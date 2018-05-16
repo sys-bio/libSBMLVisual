@@ -57,6 +57,8 @@
 #include <typeinfo>
 #include <stdint.h>
 
+using namespace libsbml;
+
 namespace Graphfab {
     
     typedef enum {

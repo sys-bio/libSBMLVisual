@@ -36,6 +36,8 @@
 #include "sbml/SBMLTypes.h"
 #include <sstream>
 
+using namespace libsbml;
+
 void gf_freeSBMLModel(gf_SBMLModel* lo) {
     if(!lo)
         AN(0, "Not a valid layout pointer"); //null

@@ -50,6 +50,7 @@
 #include <stdlib.h> // free SBML strings
 
 using namespace Graphfab;
+using namespace libsbml;
 
 void gf_freeLayoutInfo(gf_layoutInfo* l) {
     AN(l, "gf_freeLayoutInfo: unexpected null ptr");
@@ -523,7 +524,7 @@ SBMLDocument* populateSBMLdoc(gf_SBMLModel* m, gf_layoutInfo* l) {
             delete cg;
 
             // add compartment
-            ::Compartment* compartment = model->createCompartment();
+            libsbml::Compartment* compartment = model->createCompartment();
             compartment->setId(c->getId());
             compartment->setSize(1.);
             compartment->setConstant(false);
@@ -593,7 +594,7 @@ SBMLDocument* populateSBMLdoc(gf_SBMLModel* m, gf_layoutInfo* l) {
                     // already exists
                     goto skip_default_comp;
             }
-            ::Compartment* compartment = model->createCompartment();
+            libsbml::Compartment* compartment = model->createCompartment();
             compartment->setId("graphfab_default_compartment");
             compartment->setSize(1.);
             compartment->setConstant(false);
@@ -720,7 +721,7 @@ SBMLDocument* populateSBMLdoc(gf_SBMLModel* m, gf_layoutInfo* l) {
                 // cubic Bezier
                 CubicBezier* cb = curv.createCubicBezier();
 
-                ::Point p;
+                libsbml::Point p;
 
                 // end-points
                 p.setX(c->s.x);
@@ -746,7 +747,7 @@ SBMLDocument* populateSBMLdoc(gf_SBMLModel* m, gf_layoutInfo* l) {
 
             delete rg;
 
-            ::Reaction* reaction = model->createReaction();
+            libsbml::Reaction* reaction = model->createReaction();
             reaction->setId(r->getId());
             reaction->setReversible(false);
             reaction->setFast(false);
